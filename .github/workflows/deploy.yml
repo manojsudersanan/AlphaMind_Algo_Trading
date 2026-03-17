@@ -1,0 +1,15 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and push images
+        run: echo "Build and push steps here"
+      - name: Trigger deployment
+        run: echo "Deploy to Kubernetes/AWS here"

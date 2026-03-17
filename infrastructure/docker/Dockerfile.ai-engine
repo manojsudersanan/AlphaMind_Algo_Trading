@@ -1,0 +1,10 @@
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime AS base
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev
+COPY ai_engine/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ai_engine/ ./
+
+FROM base AS dev
+RUN pip install --no-cache-dir jupyter
+CMD ["celery", "-A", "backend.app.tasks.celery_app", "worker", "--loglevel=info"]
