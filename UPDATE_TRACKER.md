@@ -34,3 +34,13 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `docs: add deep research report for SOTA algorithmic trading models`
 * **Status:** Completed
 
+### [2026-05-14] Implementation of SOTA Algorithmic Framework
+* **Goal:** Apply the Deep Research findings directly into the AlphaMind codebase to elevate predictive accuracy and risk management.
+* **Changes:** 
+  1. Built `TransformerFeatureExtractor` (a PyTorch `nn.Module` with Self-Attention blocks) inside `ppo_agent.py` to process OHLCV before feeding the DRL Actor-Critic Network.
+  2. Implemented the "Agentic NLP Kill-Switch" in `ppo_agent.py` to override Model Actions if they conflict heavily with Macro Sentiment (e.g. Forcing `HOLD` if the bot tries to `BUY` during a market crash).
+  3. Integrated `pandas_ta.ichimoku` and ATR-normalized volatility cross-sectional factors into the `TechnicalFeatureEngine` within `technical.py`.
+  4. Added `DynamicKellyCriterion` in `paper_trading.py` to programmatically adjust simulated trade sizing (1% to 15% maximum portfolio limit) based on the Live News NLP Confidence Score.
+* **Git Commit Message:** `feat: implement SOTA transformer feature extractors and NLP dynamic kelly sizing`
+* **Status:** Completed
+

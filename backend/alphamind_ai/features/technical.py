@@ -34,14 +34,23 @@ class TechnicalFeatureEngine:
         df.ta.sma(length=50, append=True)
         df.ta.sma(length=200, append=True)
         
-        # Volume
+        # Volume & Micro-structure
         df.ta.obv(append=True)
         df.ta.vwap(append=True)
         
-        # Calculate Returns
+        # Advanced SOTA Factors
+        # Ichimoku Cloud (Provides support/resistance momentum regimes)
+        # Using standard parameters: tenkan=9, kijun=26, senkou=52
+        df.ta.ichimoku(append=True)
+        
+        # Cross-Sectional & Volatility normalized metrics
+        df['ATR_Normalized'] = df['ATRr_14'] / df['Close']
         df['Daily_Return'] = df['Close'].pct_change()
         
         # State Space normalization preparation (Fill NA due to rolling windows)
-        df.fillna(method='bfill', inplace=True)
+        df.bfill(inplace=True)
+        
+        # Drop strictly non-numeric columns for RL State Space
+        df = df.select_dtypes(include=['float64', 'int64', 'float32', 'int32'])
         
         return df
