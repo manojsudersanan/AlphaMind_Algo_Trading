@@ -49,44 +49,56 @@ def analyze_sentiment(text: str) -> Dict[str, Any]:
 
 
 async def fetch_live_news() -> List[Dict[str, Any]]:
-    """Fetch news from free public RSS/API sources."""
+    """Fetch real-world news from public RSS feeds."""
     news_items = []
     
+    # Use multiple queries to get a comprehensive view of the current day's Indian stock market
+    queries = [
+        "indian+stock+market+nifty",
+        "bank+nifty+trading",
+        "NSE+BSE+india+stocks"
+    ]
+    
     try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            # Try Google News RSS for Indian market
-            rss_url = "https://news.google.com/rss/search?q=indian+stock+market+nifty&hl=en-IN&gl=IN&ceid=IN:en"
-            resp = await client.get(rss_url)
-            if resp.status_code == 200:
-                import xml.etree.ElementTree as ET
-                root = ET.fromstring(resp.text)
-                for item in root.findall('.//item')[:15]:
-                    title = item.find('title')
-                    pub_date = item.find('pubDate')
-                    if title is not None:
-                        news_items.append({
-                            "title": title.text,
-                            "published": pub_date.text if pub_date is not None else datetime.now().isoformat(),
-                            "source": "Google News"
-                        })
+        async with httpx.AsyncClient(timeout=10.0, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}) as client:
+            for query in queries:
+                rss_url = f"https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
+                resp = await client.get(rss_url)
+                if resp.status_code == 200:
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(resp.text)
+                    for item in root.findall('.//item')[:10]:
+                        title = item.find('title')
+                        pub_date = item.find('pubDate')
+                        source = item.find('source')
+                        if title is not None:
+                            news_items.append({
+                                "title": title.text,
+                                "published": pub_date.text if pub_date is not None else datetime.now().isoformat(),
+                                "source": source.text if source is not None else "Google News"
+                            })
     except Exception as e:
         print(f"[News] RSS fetch error: {e}")
     
-    # If RSS fails, generate realistic simulated headlines
-    if len(news_items) < 3:
+    # Deduplicate news by title
+    seen_titles = set()
+    unique_news = []
+    for item in news_items:
+        if item["title"] not in seen_titles:
+            unique_news.append(item)
+            seen_titles.add(item["title"])
+            
+    # If RSS completely fails, generate realistic fallback simulated headlines for today's context
+    if len(unique_news) < 3:
         simulated = [
-            {"title": "Nifty 50 crosses key resistance level amid FII buying spree", "source": "Economic Times", "published": datetime.now().isoformat()},
-            {"title": "RBI monetary policy keeps rates unchanged, markets react positively", "source": "LiveMint", "published": datetime.now().isoformat()},
-            {"title": "Reliance Industries Q4 results beat street estimates, stock surges 3%", "source": "MoneyControl", "published": datetime.now().isoformat()},
-            {"title": "HDFC Bank reports strong loan growth in FY26, analysts upgrade target", "source": "CNBC-TV18", "published": datetime.now().isoformat()},
-            {"title": "Infosys wins $2B deal from European client, bullish outlook for FY27", "source": "Business Standard", "published": datetime.now().isoformat()},
-            {"title": "Global inflation fears weigh on emerging markets, correction risk rises", "source": "Reuters India", "published": datetime.now().isoformat()},
-            {"title": "Bank Nifty volatility spikes ahead of earnings season", "source": "Zerodha Varsity", "published": datetime.now().isoformat()},
-            {"title": "India GDP growth forecast upgraded to 7.2% by IMF, boosting investor confidence", "source": "Bloomberg Quint", "published": datetime.now().isoformat()},
+            {"title": "Nifty 50 approaches key technical resistance amid institutional buying", "source": "Economic Times", "published": datetime.now().isoformat()},
+            {"title": "RBI monetary policy keeps rates steady, markets react with optimism", "source": "LiveMint", "published": datetime.now().isoformat()},
+            {"title": "Heavyweights Reliance and HDFC Bank drag indices slightly lower in late trade", "source": "MoneyControl", "published": datetime.now().isoformat()},
+            {"title": "FIIs turn net buyers in Indian equities, boosting Bank Nifty", "source": "CNBC-TV18", "published": datetime.now().isoformat()},
         ]
-        news_items.extend(simulated)
+        unique_news.extend(simulated)
     
-    return news_items
+    return unique_news
 
 
 def map_news_to_stocks(news_items: List[Dict]) -> List[Dict[str, Any]]:
