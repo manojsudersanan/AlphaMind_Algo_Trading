@@ -15,7 +15,7 @@ def resolve_path(path):
     return os.path.join(basedir, path)
 
 if __name__ == "__main__":
-    # Point to main.py
+    # Point to main.py  
     app_path = resolve_path("main.py")
     
     # Fake command line args
