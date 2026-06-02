@@ -8,6 +8,12 @@ Start-Process -NoNewWindow -FilePath "powershell.exe" -ArgumentList "-Command `"
 Write-Host "2. Launching Next.js Frontend on Port 3000..." -ForegroundColor Green
 Start-Process -NoNewWindow -FilePath "powershell.exe" -ArgumentList "-Command `"cd frontend; npm run dev`""
 
+# Wait for frontend to start and open default system browser
+Write-Host "3. Waiting for Next.js dev server to start..." -ForegroundColor Yellow
+Start-Sleep -Seconds 3
+Write-Host "4. Automatically launching default system web browser to dashboard..." -ForegroundColor Green
+Start-Process "http://localhost:3000"
+
 # Note: Celery/AI tasks will run concurrently inside FastAPI's internal Event Loop BackgroundTasks in this native setup.
 
 Write-Host "==========================================" -ForegroundColor Cyan

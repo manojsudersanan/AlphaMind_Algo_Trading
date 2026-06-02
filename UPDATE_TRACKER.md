@@ -44,3 +44,9 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: implement SOTA transformer feature extractors and NLP dynamic kelly sizing`
 * **Status:** Completed
 
+### [2026-06-02] Default Browser Autostart Update
+* **Goal:** Enable automatic launch of the dashboard in the system's default browser on startup (as a robust fallback to client Antigravity browser rendering issues).
+* **Changes:** Refactored `start_native.ps1` to include a 3-second sleep during startup (letting Next.js bind port 3000) followed by a `Start-Process "http://localhost:3000"` call to launch the default system browser.
+* **Git Commit Message:** `feat: auto-launch default system browser on stack start`
+* **Status:** Completed
+
