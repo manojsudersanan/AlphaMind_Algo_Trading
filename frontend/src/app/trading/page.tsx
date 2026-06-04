@@ -46,19 +46,23 @@ export default function TradingSetupPage() {
     
     if (engineActive) {
       const token = (session as any)?.accessToken;
-      let lastTxCount = 0;
+      let lastSeenTxId = "";
       
       const fetchNewTrades = () => {
         if (!token) return;
-        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions", {
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=20", {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => {
           const txs = res.data || [];
           const trades = txs.filter((tx: any) => tx.type.includes("profit") || tx.type.includes("loss"));
           
-          if (lastTxCount === 0) {
-            lastTxCount = trades.length;
+          if (trades.length === 0) return;
+          
+          const newestTrade = trades[0];
+          
+          if (!lastSeenTxId) {
+            lastSeenTxId = newestTrade.id;
             const initialTrades = trades.slice(0, 4).reverse();
             initialTrades.forEach((tx: any) => {
               const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
@@ -68,9 +72,16 @@ export default function TradingSetupPage() {
               const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
               setLogs(prev => [...prev, logMsg]);
             });
-          } else if (trades.length > lastTxCount) {
-            const newTrades = trades.slice(0, trades.length - lastTxCount).reverse();
-            newTrades.forEach((tx: any) => {
+          } else if (newestTrade.id !== lastSeenTxId) {
+            const newTradesList = [];
+            for (let i = 0; i < trades.length; i++) {
+              if (trades[i].id === lastSeenTxId) {
+                break;
+              }
+              newTradesList.push(trades[i]);
+            }
+            
+            newTradesList.reverse().forEach((tx: any) => {
               const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
               const isProfit = tx.type.includes("profit");
               const amt = Number(tx.amount).toFixed(2);
@@ -78,7 +89,8 @@ export default function TradingSetupPage() {
               const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
               setLogs(prev => [...prev, logMsg]);
             });
-            lastTxCount = trades.length;
+            
+            lastSeenTxId = newestTrade.id;
             
             axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
               headers: { Authorization: `Bearer ${token}` }
