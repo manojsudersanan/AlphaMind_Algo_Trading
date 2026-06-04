@@ -25,8 +25,79 @@ export default function TradingSetupPage() {
       })
       .then(res => setWalletBalance(Number(res.data.balance) || 0))
       .catch(console.error)
+
+      axios.get("http://127.0.0.1:8000/api/v1/trading/config", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        setReturnRate(Number(res.data.target_return_rate) || 15)
+        setTradingType(res.data.trading_type)
+        if (res.data.is_active) {
+          setEngineActive(true)
+          setLogs(["[System] Engine status check: Active trading network found.", "[Active] Listening for ticks..."])
+        }
+      })
+      .catch(console.error)
     }
   }, [session])
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (engineActive) {
+      const token = (session as any)?.accessToken;
+      let lastTxCount = 0;
+      
+      const fetchNewTrades = () => {
+        if (!token) return;
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => {
+          const txs = res.data || [];
+          const trades = txs.filter((tx: any) => tx.type.includes("profit") || tx.type.includes("loss"));
+          
+          if (lastTxCount === 0) {
+            lastTxCount = trades.length;
+            const initialTrades = trades.slice(0, 4).reverse();
+            initialTrades.forEach((tx: any) => {
+              const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
+              const isProfit = tx.type.includes("profit");
+              const amt = Number(tx.amount).toFixed(2);
+              const timeStr = new Date(tx.created_at).toLocaleTimeString();
+              const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
+              setLogs(prev => [...prev, logMsg]);
+            });
+          } else if (trades.length > lastTxCount) {
+            const newTrades = trades.slice(0, trades.length - lastTxCount).reverse();
+            newTrades.forEach((tx: any) => {
+              const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
+              const isProfit = tx.type.includes("profit");
+              const amt = Number(tx.amount).toFixed(2);
+              const timeStr = new Date(tx.created_at).toLocaleTimeString();
+              const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
+              setLogs(prev => [...prev, logMsg]);
+            });
+            lastTxCount = trades.length;
+            
+            axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            .then(r => setWalletBalance(Number(r.data.balance) || 0))
+            .catch(console.error);
+          }
+        })
+        .catch(console.error);
+      };
+      
+      fetchNewTrades();
+      interval = setInterval(fetchNewTrades, 3000);
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [engineActive, session]);
 
   const handleToggleEngine = async () => {
     if (engineActive) {
@@ -74,9 +145,18 @@ export default function TradingSetupPage() {
         clearInterval(interval)
         
         if ((session as any)?.accessToken) {
-           axios.post("http://127.0.0.1:8000/api/v1/trading/start", {}, {
+           axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
+             trading_type: tradingType,
+             target_return_rate: returnRate
+           }, {
              headers: { Authorization: `Bearer ${(session as any).accessToken}` }
-           }).catch(console.error)
+           })
+           .then(() => {
+              axios.post("http://127.0.0.1:8000/api/v1/trading/start", {}, {
+                headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+              }).catch(console.error)
+           })
+           .catch(console.error)
         }
         
         setEngineActive(true)

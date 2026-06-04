@@ -26,6 +26,9 @@ export function NavBar() {
             <Link href="/trading" className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-2">
               <Activity className="h-4 w-4" /> Trading Engine
             </Link>
+            <Link href="/paper-trading" className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-2">
+              <BrainCircuit className="h-4 w-4" /> Backtesting
+            </Link>
             <Link href="/wallet" className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-2">
               <Wallet className="h-4 w-4" /> Wallet
             </Link>
