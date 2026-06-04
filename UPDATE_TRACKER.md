@@ -56,3 +56,13 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `rebrand: rename application display identity to AlphaMind Algo Trading`
 * **Status:** Completed
 
+### [2026-06-04] Live Trade Execution Terminal Streaming
+* **Goal:** Enable users to view live trade executions dynamically streaming inside the Trading Engine terminal box instead of just seeing static setup logs.
+* **Changes:**
+  1. Configured persistent status fetching on page mount for `/trading` to detect active background neural nets.
+  2. Implemented dynamic polling of `/api/v1/wallet/transactions` every 3 seconds to fetch new profit/loss trades and render them in the console trace.
+  3. Enabled config syncing (strategy type, return rate target) on startup.
+  4. Added a `Backtesting` option to the main navigation menu mapping to `/paper-trading`.
+* **Git Commit Message:** `feat: stream live trades to Trading Engine terminal and add Backtesting to NavBar`
+* **Status:** Completed
+
