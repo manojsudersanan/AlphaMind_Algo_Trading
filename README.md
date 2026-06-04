@@ -1,6 +1,6 @@
-# AlphaMind
+# AlphaMind Algo Trading
 
-AlphaMind is an AI-first, self-reinforcing algorithmic trading platform designed to autonomously execute, learn, and compound returns.
+AlphaMind Algo Trading is an AI-first, self-reinforcing algorithmic trading platform designed to autonomously execute, learn, and compound returns.
 
 ## Architecture & Infrastructure
 The project is organized efficiently via `docker-compose.yml`, deploying services including:
