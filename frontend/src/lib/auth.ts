@@ -5,7 +5,7 @@ import axios from "axios"
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "Sigma Alpha Mind Account",
+      name: "AlphaMind Algo Trading Account",
       credentials: {
         username: { label: "Email", type: "email", placeholder: "trader@alphamind.ai" },
         password: { label: "Password", type: "password" }

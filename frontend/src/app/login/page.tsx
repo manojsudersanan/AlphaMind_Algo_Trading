@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl p-10 shadow-2xl">
         <div className="text-center">
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground">
-            Sigma Alpha Mind <span className="text-primary opacity-80">Native</span>
+            AlphaMind Algo Trading <span className="text-primary opacity-80">Native</span>
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Sign in to access your algorithmic trading neural network.

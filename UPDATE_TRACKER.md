@@ -50,3 +50,9 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: auto-launch default system browser on stack start`
 * **Status:** Completed
 
+### [2026-06-04] Rebranding to AlphaMind Algo Trading
+* **Goal:** Rebrand the application's front-facing identity (metadata, page headers, accounts) from "Sigma Alpha Mind" to "AlphaMind Algo Trading".
+* **Changes:** Refactored `layout.tsx`, `login/page.tsx`, and `auth.ts` to replace all occurrences of the old application name with "AlphaMind Algo Trading".
+* **Git Commit Message:** `rebrand: rename application display identity to AlphaMind Algo Trading`
+* **Status:** Completed
+
