@@ -10,6 +10,13 @@ import axios from "axios"
 export default function SettingsPage() {
   const { data: session } = useSession()
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  const activeTheme = mounted ? theme : "system"
   
   // State for Trading Config (Token Limiter)
   const [config, setConfig] = useState<any>({
@@ -154,7 +161,7 @@ export default function SettingsPage() {
             <button
               onClick={() => setTheme("light")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-semibold transition-all ${
-                theme === "light" 
+                activeTheme === "light" 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
@@ -164,7 +171,7 @@ export default function SettingsPage() {
             <button
               onClick={() => setTheme("dark")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-semibold transition-all ${
-                theme === "dark" 
+                activeTheme === "dark" 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
@@ -174,7 +181,7 @@ export default function SettingsPage() {
             <button
               onClick={() => setTheme("system")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-semibold transition-all ${
-                theme === "system" 
+                activeTheme === "system" 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'text-muted-foreground hover:text-foreground'
               }`}
