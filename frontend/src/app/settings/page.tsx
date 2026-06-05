@@ -16,7 +16,7 @@ export default function SettingsPage() {
     setMounted(true)
   }, [])
   
-  const activeTheme = mounted ? (theme || "dark") : "dark"
+  const activeTheme = mounted ? (theme === "system" ? "dark" : (theme || "dark")) : "dark"
   
   // State for Trading Config (Token Limiter)
   const [config, setConfig] = useState<any>({
@@ -176,16 +176,6 @@ export default function SettingsPage() {
               }`}
             >
               <Moon className="h-3.5 w-3.5" /> Dark
-            </button>
-            <button
-              onClick={() => setTheme("system")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-xs font-semibold transition-all ${
-                activeTheme === "system" 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Monitor className="h-3.5 w-3.5" /> System
             </button>
           </div>
         </div>
