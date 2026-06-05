@@ -670,8 +670,8 @@ export default function TradingSetupPage() {
                 Expand Chart &rarr;
               </span>
             </div>
-            <div className="h-[95px] w-full mt-2 relative">
-              <PnLChart transactions={transactions} variant="preview" interactive={false} />
+            <div className="h-[155px] w-full mt-2 relative">
+              <PnLChart transactions={transactions} variant="preview" interactive={false} sessionsList={sessionsList} />
             </div>
           </div>
 
@@ -913,15 +913,6 @@ export default function TradingSetupPage() {
       {showDetailedChart && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 relative">
-            {/* Absolute close button for extra visibility and easy touch closure */}
-            <button
-              onClick={() => setShowDetailedChart(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive p-1.5 rounded-full hover:bg-secondary/20 transition-all z-10"
-              title="Close modal"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            
             <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-secondary/15">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2 pr-8 sm:pr-0">
@@ -931,15 +922,15 @@ export default function TradingSetupPage() {
               </div>
               <button 
                 onClick={() => setShowDetailedChart(false)}
-                className="flex items-center gap-1.5 px-4 py-2 border border-destructive/30 bg-destructive/10 hover:bg-destructive/20 active:bg-destructive/30 rounded-lg text-xs font-semibold text-destructive transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                className="flex items-center gap-1.5 px-3.5 py-2 border border-border bg-background/50 hover:bg-secondary/40 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground transition-all shadow-sm focus:outline-none"
                 title="Close"
               >
-                <X className="h-4 w-4" /> Close View
+                <X className="h-4 w-4" /> Close
               </button>
             </div>
             
             <div className="h-[400px] w-full bg-[#0d1117] flex flex-col p-6 rounded-b-xl border-t border-border/30">
-              <PnLChart transactions={transactions} variant="detailed" interactive={true} />
+              <PnLChart transactions={transactions} variant="detailed" interactive={true} sessionsList={sessionsList} />
             </div>
           </div>
         </div>

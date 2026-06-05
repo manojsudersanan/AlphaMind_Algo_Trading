@@ -16,6 +16,7 @@ export default function DashboardPage() {
   const [bestPrediction, setBestPrediction] = useState<any>(null)
   const [newsIntel, setNewsIntel] = useState<any>(null)
   const [transactions, setTransactions] = useState<any[]>([])
+  const [sessionsList, setSessionsList] = useState<any[]>([])
   const ws = useRef<WebSocket | null>(null)
 
   useEffect(() => {
@@ -52,6 +53,12 @@ export default function DashboardPage() {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => setTransactions(res.data || []))
+        .catch(console.error)
+
+        axios.get("http://127.0.0.1:8000/api/v1/trading/sessions", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => setSessionsList(res.data || []))
         .catch(console.error)
       }
 
@@ -185,8 +192,8 @@ export default function DashboardPage() {
               <h3 className="text-sm font-medium text-muted-foreground">Profit & Loss Curve</h3>
               <TrendingUp className="h-4 w-4 text-trading-green group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </div>
-            <div className="h-[75px] w-full mt-2 relative">
-              <PnLChart transactions={transactions} variant="preview" interactive={false} />
+            <div className="h-[145px] w-full mt-2 relative">
+              <PnLChart transactions={transactions} variant="preview" interactive={false} sessionsList={sessionsList} />
             </div>
             <p className="text-[10px] text-muted-foreground mt-2 flex justify-between items-center">
               <span>Live Chart Engine</span>

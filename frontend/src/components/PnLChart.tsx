@@ -17,20 +17,30 @@ interface PnLChartProps {
   transactions: Transaction[]
   variant?: "preview" | "detailed"
   interactive?: boolean
+  sessionsList?: any[]
 }
 
 export default function PnLChart({
   transactions,
   variant = "preview",
   interactive = true,
+  sessionsList = [],
 }: PnLChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // 1. Process transactions to compile chronological PnL data
   const chartData = useMemo(() => {
+    // Determine if we should filter transactions to only the latest session
+    let filteredTxs = transactions
+    if (sessionsList && sessionsList.length > 0) {
+      const latestSession = sessionsList[0]
+      const sessionStartTime = parseDate(latestSession.start_time).getTime()
+      filteredTxs = transactions.filter(tx => parseDate(tx.created_at).getTime() >= sessionStartTime)
+    }
+
     // Filter for trade transactions (profit and loss realized)
-    const trades = transactions.filter((tx) => {
+    const trades = filteredTxs.filter((tx) => {
       const type = tx.type?.toLowerCase() || ""
       return type.includes("profit") || type.includes("loss")
     })
@@ -41,7 +51,7 @@ export default function PnLChart({
     )
 
     let runningPnL = 0
-    const points = sortedTrades.map((tx) => {
+    const rawPoints = sortedTrades.map((tx) => {
       const isProfit = tx.type?.toLowerCase().includes("profit")
       const amt = Number(tx.amount) || 0
       if (tx.running_pnl !== undefined && tx.running_pnl !== null) {
@@ -57,7 +67,7 @@ export default function PnLChart({
     })
 
     // If we don't have enough points, return a flat line at zero
-    if (points.length < 2) {
+    if (rawPoints.length < 2) {
       const now = Date.now()
       return [
         { pnl: 0, time: new Date(now - 60000), tx: null },
@@ -66,23 +76,32 @@ export default function PnLChart({
     }
 
     // Prepend a starting point to look smooth and reflect correct baseline
-    const firstTime = points[0].time.getTime()
-    const firstTx = points[0].tx
+    const firstTime = rawPoints[0].time.getTime()
+    const firstTx = rawPoints[0].tx
     let startingPnL = 0
     if (firstTx) {
       const firstIsProfit = firstTx.type?.toLowerCase().includes("profit")
       const firstAmt = Number(firstTx.amount) || 0
-      startingPnL = points[0].pnl - (firstIsProfit ? firstAmt : -firstAmt)
+      startingPnL = rawPoints[0].pnl - (firstIsProfit ? firstAmt : -firstAmt)
     }
 
+    // Determine baseline from the very first transaction's pre-trade PnL
+    const baselinePnL = startingPnL
+
+    // Adjust all points relative to baseline so the graph starts at 0
+    const points = rawPoints.map(pt => ({
+      ...pt,
+      pnl: pt.pnl - baselinePnL
+    }))
+
     const startingPoint = {
-      pnl: startingPnL,
+      pnl: 0,
       time: new Date(firstTime - 60000),
       tx: null,
     }
 
     return [startingPoint, ...points]
-  }, [transactions])
+  }, [transactions, sessionsList])
 
   // Chart configuration based on variant
   const config = useMemo(() => {
@@ -293,7 +312,7 @@ export default function PnLChart({
       </div>
 
       {/* SVG Canvas */}
-      <div className="flex-1 relative min-h-[80px] w-full">
+      <div className="flex-1 relative min-h-[50px] w-full">
         <svg
           viewBox={`0 0 ${config.viewBoxWidth} ${config.viewBoxHeight}`}
           width="100%"
