@@ -364,31 +364,65 @@ export default function TradingSetupPage() {
 
               {/* Closed-Market Fallback Toggle */}
               <div className="space-y-4 pt-4 border-t border-border/50">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <label className="text-sm font-medium block">Market Closed Session Mode</label>
-                    <span className="text-xs text-muted-foreground">Select data fallback policy when live trading is closed</span>
+                    <label className="text-sm font-medium flex items-center gap-1.5">
+                      <span>Closed-Market Feed Mode</span>
+                      <div className="relative group inline-flex items-center">
+                        <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal normal-case">
+                          Controls the neural network feed inputs when the stock exchange is closed. Choose to replay previous real session ticks or run a simulated real-time live session.
+                        </div>
+                      </div>
+                    </label>
+                    <span className="text-xs text-muted-foreground block">Select your off-hours data fallback feed.</span>
                   </div>
-                  <button
-                    onClick={() => {
-                      const newVal = !fallbackToPreviousDay;
-                      setFallbackToPreviousDay(newVal);
-                      if (session?.user && (session as any)?.accessToken) {
-                        axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
-                          fallback_to_previous_day: newVal
-                        }, {
-                          headers: { Authorization: `Bearer ${(session as any).accessToken}` }
-                        }).catch(console.error);
-                      }
-                    }}
-                    className={`px-4 py-2.5 rounded-md text-xs font-semibold border transition-all shrink-0 min-w-[200px] text-center ${
-                      fallbackToPreviousDay 
-                        ? 'border-primary bg-primary/10 text-primary ring-1 ring-primary' 
-                        : 'border-border bg-background hover:bg-accent text-foreground'
-                    }`}
-                  >
-                    {fallbackToPreviousDay ? "Fallback to Prev Day" : "Use Current Day (Simulated)"}
-                  </button>
+                  
+                  {/* Segmented Control Switcher */}
+                  <div className="flex bg-secondary/40 p-1 rounded-lg border border-border shrink-0 max-w-[340px] w-full sm:w-auto relative">
+                    <button
+                      onClick={() => {
+                        if (!fallbackToPreviousDay) {
+                          setFallbackToPreviousDay(true);
+                          if (session?.user && (session as any)?.accessToken) {
+                            axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
+                              fallback_to_previous_day: true
+                            }, {
+                              headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+                            }).catch(console.error);
+                          }
+                        }
+                      }}
+                      className={`flex-1 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                        fallbackToPreviousDay 
+                          ? 'bg-primary text-primary-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      Previous Session
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (fallbackToPreviousDay) {
+                          setFallbackToPreviousDay(false);
+                          if (session?.user && (session as any)?.accessToken) {
+                            axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
+                              fallback_to_previous_day: false
+                            }, {
+                              headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+                            }).catch(console.error);
+                          }
+                        }
+                      }}
+                      className={`flex-1 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                        !fallbackToPreviousDay 
+                          ? 'bg-primary text-primary-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      Live Session
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -433,6 +467,12 @@ export default function TradingSetupPage() {
             <div className="flex items-center gap-2 mb-4 text-trading-gold">
               <ShieldAlert className="h-5 w-5" />
               <h2 className="text-lg font-semibold">Risk Analysis</h2>
+              <div className="relative group inline-flex items-center">
+                <Info className="h-3.5 w-3.5 text-trading-gold/60 hover:text-trading-gold cursor-pointer transition-colors" />
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2.5 bg-popover text-popover-foreground text-[10.5px] rounded border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-relaxed font-normal normal-case">
+                  Quantitative risk projection calculated from your target return, selected trading timeline, and neural network historic performance logs.
+                </div>
+              </div>
             </div>
             
             <div className="flex-1 space-y-4">
@@ -441,16 +481,40 @@ export default function TradingSetupPage() {
               </p>
               
               <div className="space-y-2 pt-4">
-                <div className="flex justify-between text-sm py-2 border-b border-border/50">
-                  <span className="text-muted-foreground">Est. Max Drawdown</span>
+                <div className="flex justify-between items-center text-sm py-2 border-b border-border/50">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Est. Max Drawdown</span>
+                    <div className="relative group inline-flex items-center">
+                      <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal">
+                        The maximum anticipated peak-to-trough decline in paper capital, computed based on volatility parameters and model constraints.
+                      </div>
+                    </div>
+                  </div>
                   <span className="font-semibold text-trading-red">-{Math.round(returnRate * 0.4)}%</span>
                 </div>
-                <div className="flex justify-between text-sm py-2 border-b border-border/50">
-                  <span className="text-muted-foreground">Win Rate Probability</span>
+                <div className="flex justify-between items-center text-sm py-2 border-b border-border/50">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Win Rate Probability</span>
+                    <div className="relative group inline-flex items-center">
+                      <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal">
+                        The statistical percentage likelihood of executing profitable trades, dynamically adjusted by strategy mode and current target returns.
+                      </div>
+                    </div>
+                  </div>
                   <span className="font-semibold text-trading-green">{Math.max(45, Math.min(85, 90 - returnRate))}%</span>
                 </div>
-                <div className="flex justify-between text-sm py-2 border-b border-border/50">
-                  <span className="text-muted-foreground">Sharpe Ratio</span>
+                <div className="flex justify-between items-center text-sm py-2 border-b border-border/50">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Sharpe Ratio</span>
+                    <div className="relative group inline-flex items-center">
+                      <Info className="h-3.5 w-3.5 text-muted-foreground/60 hover:text-foreground cursor-pointer transition-colors" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal">
+                        A metric of risk-adjusted return. A higher value indicates superior returns per unit of volatility or standard deviation.
+                      </div>
+                    </div>
+                  </div>
                   <span className="font-semibold text-foreground">{(2.5 - (returnRate*0.04)).toFixed(2)}</span>
                 </div>
               </div>

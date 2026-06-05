@@ -85,5 +85,14 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: implement interactive strategy definitions hover card in trading settings`
 * **Status:** Completed
 
+### [2026-06-05] Segmented Closed-Market Switcher & Metrics Info Tooltips
+* **Goal:** Improve UX by replacing the confusing single toggle button for closed-market fallback with a clear Segmented Control Tab layout (Previous Session / Live Session), and adding info tooltips explaining key risk metrics.
+* **Changes:**
+  1. Replaced the "Market Closed Session Mode" toggle button with a custom segmented switcher containing `Previous Session` and `Live Session` buttons.
+  2. Implemented hover-to-display tooltips on Info icons next to Risk Analysis header, Est. Max Drawdown, Win Rate Probability, and Sharpe Ratio labels.
+* **Git Commit Message:** `feat: add Segmented Control tab switcher and Info hover tooltips for risk metrics`
+* **Status:** Completed
+
+
 
 
