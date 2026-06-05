@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react"
 import { Activity, Wallet, TrendingUp, Cpu, ArrowUpRight, ArrowDownRight, Zap, Newspaper } from "lucide-react"
 import axios from "axios"
 import Link from "next/link"
+import PnLChart from "@/components/PnLChart"
 
 export default function DashboardPage() {
   const { data: session } = useSession()
@@ -13,18 +14,13 @@ export default function DashboardPage() {
   const [marketTicks, setMarketTicks] = useState<any[]>([])
   const [bestPrediction, setBestPrediction] = useState<any>(null)
   const [newsIntel, setNewsIntel] = useState<any>(null)
+  const [transactions, setTransactions] = useState<any[]>([])
   const ws = useRef<WebSocket | null>(null)
 
   useEffect(() => {
     const token = (session as any)?.accessToken;
     
     if (token) {
-      axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(res => setWalletBalance(Number(res.data.balance) || 0))
-      .catch(console.error)
-
       axios.get("http://127.0.0.1:8000/api/v1/trading/config", {
          headers: { Authorization: `Bearer ${token}` }
       })
@@ -36,6 +32,29 @@ export default function DashboardPage() {
     axios.get("http://127.0.0.1:8000/api/v1/news/intelligence")
       .then(res => setNewsIntel(res.data))
       .catch(console.error)
+  }, [session])
+
+  useEffect(() => {
+    const token = (session as any)?.accessToken;
+    if (token) {
+      const fetchDynamicData = () => {
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => setWalletBalance(Number(res.data.balance) || 0))
+        .catch(console.error)
+
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=50", {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => setTransactions(res.data || []))
+        .catch(console.error)
+      }
+
+      fetchDynamicData()
+      const interval = setInterval(fetchDynamicData, 3000)
+      return () => clearInterval(interval)
+    }
   }, [session])
 
   useEffect(() => {
@@ -136,6 +155,27 @@ export default function DashboardPage() {
             </p>
           </div>
         </div>
+
+        {/* PnL Preview Card */}
+        <Link 
+          href="/trading" 
+          className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group block hover:border-primary/50 transition-all duration-300 col-span-1"
+        >
+          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-green/10 blur-xl transition-all group-hover:bg-trading-green/20" />
+          <div className="flex flex-col h-full justify-between">
+            <div className="flex flex-row items-center justify-between pb-1">
+              <h3 className="text-sm font-medium text-muted-foreground">Profit & Loss Curve</h3>
+              <TrendingUp className="h-4 w-4 text-trading-green group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </div>
+            <div className="h-[75px] w-full mt-2 relative">
+              <PnLChart transactions={transactions} variant="preview" interactive={false} />
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2 flex justify-between items-center">
+              <span>Live Chart Engine</span>
+              <span className="text-primary font-medium group-hover:underline">Detailed View &rarr;</span>
+            </p>
+          </div>
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">

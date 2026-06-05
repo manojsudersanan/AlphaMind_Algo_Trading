@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import axios from "axios"
 import { Activity, ShieldAlert, Cpu, PlayCircle, StopCircle, Info, ArrowLeft, Loader2, BrainCircuit } from "lucide-react"
+import PnLChart from "@/components/PnLChart"
 
 const STRATEGY_DETAILS: Record<string, { title: string; definition: string; action: string }> = {
   intraday: {
@@ -49,6 +50,8 @@ export default function TradingSetupPage() {
   const [engineProgress, setEngineProgress] = useState(0)
   const [logs, setLogs] = useState<string[]>([])
   const [walletBalance, setWalletBalance] = useState<number | null>(null)
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [showDetailedChart, setShowDetailedChart] = useState(false)
   
   // Toggles & Memory States
   const [fallbackToPreviousDay, setFallbackToPreviousDay] = useState(true)
@@ -129,6 +132,15 @@ export default function TradingSetupPage() {
         setTradeMemories(res.data || [])
       })
       .catch(console.error)
+
+      // Fetch initial transactions
+      axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=100", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        setTransactions(res.data || [])
+      })
+      .catch(console.error)
     }
   }, [session])
 
@@ -140,11 +152,12 @@ export default function TradingSetupPage() {
       
       const fetchNewTrades = () => {
         if (!token) return;
-        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=20", {
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=100", {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => {
           const txs = res.data || [];
+          setTransactions(txs);
           const trades = txs.filter((tx: any) => tx.type.includes("profit") || tx.type.includes("loss"));
           
           if (trades.length === 0) return;
@@ -535,6 +548,26 @@ export default function TradingSetupPage() {
 
         {/* Right Columns */}
         <div className="space-y-6">
+          {/* PnL Preview Card */}
+          <div 
+            onClick={() => setShowDetailedChart(true)}
+            className="rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col cursor-pointer hover:border-primary/50 transition-all duration-300 relative group overflow-hidden"
+          >
+            <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/10 blur-xl transition-all group-hover:bg-primary/20" />
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold font-sans">Performance Curve</h2>
+              </div>
+              <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded border border-primary/20 group-hover:bg-primary/20 transition-all">
+                Expand Chart &rarr;
+              </span>
+            </div>
+            <div className="h-[95px] w-full mt-2 relative">
+              <PnLChart transactions={transactions} variant="preview" interactive={false} />
+            </div>
+          </div>
+
           {/* Risk Profile Column */}
           <div className="rounded-xl border border-trading-gold/30 bg-trading-gold/5 p-6 shadow-sm flex flex-col">
             <div className="flex items-center gap-2 mb-4 text-trading-gold">
@@ -721,6 +754,42 @@ export default function TradingSetupPage() {
                )
              })}
             {loading && <div className="text-muted-foreground animate-pulse mt-2">_</div>}
+          </div>
+        </div>
+      )}
+
+      {/* Detailed PnL Chart Modal */}
+      {showDetailedChart && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-border/50 flex justify-between items-center bg-secondary/15">
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Activity className="h-6 w-6 text-primary" /> Detailed Performance Analytics
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">Real-time model equity and trade execution monitoring.</p>
+              </div>
+              <button 
+                onClick={() => setShowDetailedChart(false)}
+                className="px-3.5 py-2 rounded-md font-semibold text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              >
+                Close
+              </button>
+            </div>
+            
+            <div className="p-6 h-[400px] w-full bg-[#0d1117] flex flex-col">
+              <PnLChart transactions={transactions} variant="detailed" interactive={true} />
+            </div>
+            
+            <div className="p-4 bg-secondary/20 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground">
+              <span>Press Esc or click Close to return. Updates automatically as the algorithmic agent executes trades.</span>
+              <button 
+                onClick={() => setShowDetailedChart(false)}
+                className="px-5 py-2 rounded-md font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+              >
+                Close View
+              </button>
+            </div>
           </div>
         </div>
       )}
