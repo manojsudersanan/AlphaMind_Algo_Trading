@@ -30,6 +30,8 @@ async def get_trading_config(
             trading_type=TradingType.INTRADAY,
             target_return_rate=Decimal('15.0'),
             is_active=False,
+            fallback_to_previous_day=True,
+            turboquant_enabled=True,
         )
         db.add(config)
         await db.commit()
@@ -107,3 +109,21 @@ async def toggle_edge_connection(online: bool):
     """Toggle online/offline status of the Edge Node."""
     edge_node.set_online_status(online)
     return {"status": "success", "edge_state": edge_node.get_status()}
+
+@router.get("/memory")
+async def get_trading_memory(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """Get the latest adapted trade memory metrics."""
+    from sqlalchemy.future import select
+    from app.models.trade_memory import TradeMemory
+    
+    result = await db.execute(
+        select(TradeMemory)
+        .filter(TradeMemory.user_id == current_user.id)
+        .order_by(TradeMemory.created_at.desc())
+        .limit(10)
+    )
+    memories = result.scalars().all()
+    return memories

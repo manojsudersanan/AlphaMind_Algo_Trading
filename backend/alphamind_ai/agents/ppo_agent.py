@@ -5,12 +5,14 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from app.core.config import settings
+from alphamind_ai.compression.turbo_quant import TurboQuantizer
 
 class TransformerFeatureExtractor(BaseFeaturesExtractor):
     """
     SOTA Temporal Fusion Transformer Extractor Framework.
     Processes quantitative OHLCV temporal state space through Self-Attention mechanisms 
     before passing it to the PPO Policy network.
+    Now optimized with Google's TurboQuant 3-bit cache compression.
     """
     def __init__(self, observation_space, features_dim: int = 128):
         super().__init__(observation_space, features_dim)
@@ -25,9 +27,14 @@ class TransformerFeatureExtractor(BaseFeaturesExtractor):
             nn.Linear(256, features_dim),
             nn.LayerNorm(features_dim)
         )
+        
+        # Google TurboQuant compression module (3-bit quantization)
+        self.turbo_quantizer = TurboQuantizer(features_dim=features_dim, num_bits=3)
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
-        return self.encoder(observations)
+        features = self.encoder(observations)
+        # Apply random-rotation 3-bit scalar compression
+        return self.turbo_quantizer(features)
 
 
 class PPOTradingAgent:

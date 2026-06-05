@@ -7,6 +7,8 @@ class TradingConfigBase(BaseModel):
     trading_type: str = "intraday"
     target_return_rate: Decimal = Decimal("10.0")
     is_active: bool = False
+    fallback_to_previous_day: bool = True
+    turboquant_enabled: bool = True
 
 class TradingConfigCreate(TradingConfigBase):
     pass
@@ -15,6 +17,8 @@ class TradingConfigUpdate(BaseModel):
     trading_type: str | None = None
     target_return_rate: float | None = None
     is_active: bool | None = None
+    fallback_to_previous_day: bool | None = None
+    turboquant_enabled: bool | None = None
 
 class TradingConfigResponse(BaseModel):
     id: UUID
@@ -29,6 +33,8 @@ class TradingConfigResponse(BaseModel):
     position_sizing_type: str
     auto_reinvestment: bool
     is_active: bool
+    fallback_to_previous_day: bool
+    turboquant_enabled: bool
     created_at: datetime
     updated_at: datetime
 

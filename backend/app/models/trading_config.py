@@ -44,6 +44,8 @@ class TradingConfig(Base, UUIDMixin, TimestampMixin):
     
     auto_reinvestment: Mapped[bool] = mapped_column(Boolean, default=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+    fallback_to_previous_day: Mapped[bool] = mapped_column(Boolean, default=True)
+    turboquant_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     
     # Relationships
     user = relationship("User", back_populates="trading_config")
