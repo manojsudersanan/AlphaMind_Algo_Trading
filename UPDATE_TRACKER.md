@@ -76,4 +76,14 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `fix: resolve SQLite schema misalignment and encoding errors in HFT trading task`
 * **Status:** Completed
 
+### [2026-06-05] Strategy Configuration Hover Definitions Card
+* **Goal:** Implement premium strategy hover cards that provide clear definitions and engine action behavior details for all model strategies (Intraday, F&O, Weekly, Monthly, Scalper Zone, Volatility Edge).
+* **Changes:**
+  1. Defined `STRATEGY_DETAILS` metadata structure holding titles, definitions, and backend engine behaviors for all 6 strategy horizons in `frontend/src/app/trading/page.tsx`.
+  2. Implemented `hoveredType` React state dynamically updating on strategy button hover.
+  3. Structured a premium strategy explanation panel featuring dynamic text switching and a micro-animated `BrainCircuit` indicator, matching user selection/hover states.
+* **Git Commit Message:** `feat: implement interactive strategy definitions hover card in trading settings`
+* **Status:** Completed
+
+
 

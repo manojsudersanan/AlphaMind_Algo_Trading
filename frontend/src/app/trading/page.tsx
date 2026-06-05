@@ -6,10 +6,44 @@ import Link from "next/link"
 import axios from "axios"
 import { Activity, ShieldAlert, Cpu, PlayCircle, StopCircle, Info, ArrowLeft, Loader2, BrainCircuit } from "lucide-react"
 
+const STRATEGY_DETAILS: Record<string, { title: string; definition: string; action: string }> = {
+  intraday: {
+    title: "Intraday Strategy",
+    definition: "Day trading strategy where positions are entered and closed within the same session.",
+    action: "Processes 5-min candle aggregates, computing technical indicators (MACD/RSI) to capture intraday swings. All positions auto-square-off before market close (15:30 IST) to eliminate overnight risk."
+  },
+  fno: {
+    title: "Futures & Options (F&O)",
+    definition: "Derivatives strategy utilizing leverage to trade index futures or hedging via options spreads.",
+    action: "Simulates high-leverage positions on index contracts, deploying automated option spreads and stop-loss hedges to balance risk-reward ratios dynamically during high-momentum setups."
+  },
+  weekly: {
+    title: "Weekly Swing",
+    definition: "Swing trading strategy capturing multi-day trend patterns across a weekly horizon.",
+    action: "Filters out intraday noise by tracking multi-day moving averages and weekly OHLCV structures to ride primary trends with optimized trail-stops."
+  },
+  monthly: {
+    title: "Monthly Position",
+    definition: "Position trading targeting long-term trends spanning several weeks to months.",
+    action: "Performs macro analysis and fundamental score alignment to manage long-term portfolio weightings, focusing on steady capital compounding."
+  },
+  scalping: {
+    title: "Scalper Zone (Scalping)",
+    definition: "High-frequency trading aiming to secure quick, minor gains from micro price fluctuations.",
+    action: "Polls tick-by-tick logs. Automatically places tight profit targets and stops to close trades in seconds. Yields a higher win rate (typically 68% base) on smaller trade size sizing."
+  },
+  volatility: {
+    title: "Volatility Edge",
+    definition: "Breakout strategy designed to exploit major price swings and sudden market fluctuations.",
+    action: "Tracks ATR (Average True Range) and Bollinger Band expansion to capitalize on breakouts. Triggers swift entry/exits during highly volatile trading windows like market open or news alerts."
+  }
+}
+
 export default function TradingSetupPage() {
   const { data: session } = useSession()
   const [returnRate, setReturnRate] = useState(15)
   const [tradingType, setTradingType] = useState("intraday")
+  const [hoveredType, setHoveredType] = useState<string | null>(null)
   const [engineActive, setEngineActive] = useState(false)
   const [loading, setLoading] = useState(false)
   const [engineProgress, setEngineProgress] = useState(0)
@@ -268,6 +302,8 @@ export default function TradingSetupPage() {
                     <button
                       key={type}
                       onClick={() => setTradingType(type)}
+                      onMouseEnter={() => setHoveredType(type)}
+                      onMouseLeave={() => setHoveredType(null)}
                       className={`py-3 px-4 rounded-md border text-sm font-medium capitalize transition-all ${
                         tradingType === type 
                           ? 'border-primary bg-primary/10 text-primary ring-1 ring-primary' 
@@ -277,6 +313,27 @@ export default function TradingSetupPage() {
                       {type === 'fno' ? 'F&O' : type === 'scalping' ? 'Scalper Zone' : type === 'volatility' ? 'Volatility Edge' : type}
                     </button>
                   ))}
+                </div>
+
+                {/* Strategy Details Explanation Box */}
+                <div className="mt-4 p-4 rounded-lg border border-border bg-secondary/10 hover:bg-secondary/20 transition-all duration-300 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                  <div className="flex items-center gap-2 mb-2">
+                    <BrainCircuit className="h-4 w-4 text-primary animate-pulse" />
+                    <h4 className="text-sm font-semibold text-foreground">
+                      {STRATEGY_DETAILS[hoveredType || tradingType]?.title}
+                    </h4>
+                    {hoveredType && (
+                      <span className="text-[10px] text-muted-foreground italic ml-auto bg-secondary/30 px-1.5 py-0.5 rounded">Previewing on Hover</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-foreground font-medium mb-1 leading-relaxed">
+                    {STRATEGY_DETAILS[hoveredType || tradingType]?.definition}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed pt-1 border-t border-border/30">
+                    <strong className="text-primary font-semibold">Engine Behavior: </strong>
+                    {STRATEGY_DETAILS[hoveredType || tradingType]?.action}
+                  </p>
                 </div>
               </div>
 
