@@ -58,6 +58,45 @@ export default function TradingSetupPage() {
   // Ref to persist transaction tracking across component renders
   const lastSeenTxIdRef = useRef("")
 
+  // Market hours checker (9:15 AM - 3:30 PM IST, Mon-Fri)
+  const [marketOpen, setMarketOpen] = useState(false)
+
+  useEffect(() => {
+    const checkMarket = () => {
+      const now = new Date()
+      try {
+        const istString = now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+        const istDate = new Date(istString)
+        const day = istDate.getDay()
+        const hours = istDate.getHours()
+        const minutes = istDate.getMinutes()
+        
+        if (day === 0 || day === 6) {
+          setMarketOpen(false)
+          return
+        }
+        
+        const timeInMinutes = hours * 60 + minutes
+        const marketStart = 9 * 60 + 15
+        const marketEnd = 15 * 60 + 30
+        
+        setMarketOpen(timeInMinutes >= marketStart && timeInMinutes <= marketEnd)
+      } catch (e) {
+        const day = now.getDay()
+        if (day === 0 || day === 6) {
+          setMarketOpen(false)
+          return
+        }
+        const timeInMinutes = now.getHours() * 60 + now.getMinutes()
+        setMarketOpen(timeInMinutes >= 555 && timeInMinutes <= 930)
+      }
+    }
+    
+    checkMarket()
+    const t = setInterval(checkMarket, 60000)
+    return () => clearInterval(t)
+  }, [])
+
   useEffect(() => {
     const token = (session as any)?.accessToken;
     if (token) {
@@ -371,7 +410,7 @@ export default function TradingSetupPage() {
                       <div className="relative group inline-flex items-center">
                         <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal normal-case">
-                          Controls the neural network feed inputs when the stock exchange is closed. Choose to replay previous real session ticks or run a simulated real-time live session.
+                          Controls the neural network feed inputs. When the stock exchange is closed (outside Mon-Fri 9:15-15:30 IST), Live Session will simulate ticking feeds. Current state: {marketOpen ? "OPEN (Real-time active)" : "CLOSED (Simulated active)"}.
                         </div>
                       </div>
                     </label>
@@ -420,7 +459,7 @@ export default function TradingSetupPage() {
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      Live Session
+                      {marketOpen ? "Live Session (Open)" : "Live Session (Closed Sim)"}
                     </button>
                   </div>
                 </div>
