@@ -8,13 +8,14 @@ function SystemThemeSync() {
 
   React.useEffect(() => {
     const applySystemTheme = () => {
-      const currentTheme = theme || "system"
+      const currentTheme = theme || "dark"
       if (currentTheme === "system") {
+        const isLight = window.matchMedia("(prefers-color-scheme: light)").matches
         const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-        if (isDark) {
-          document.documentElement.classList.add("dark")
-        } else {
+        if (isLight && !isDark) {
           document.documentElement.classList.remove("dark")
+        } else {
+          document.documentElement.classList.add("dark")
         }
       }
     }
