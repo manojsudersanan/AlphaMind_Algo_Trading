@@ -428,31 +428,65 @@ export default function TradingSetupPage() {
 
               {/* Google TurboQuant Toggle */}
               <div className="space-y-4 pt-4 border-t border-border/50">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <label className="text-sm font-medium block">Google TurboQuant 3-bit Compression</label>
-                    <span className="text-xs text-muted-foreground">Quantize PPO weights and feature extractor vectors to limit local VRAM usage</span>
+                    <label className="text-sm font-medium flex items-center gap-1.5">
+                      <span>Google TurboQuant Compression</span>
+                      <div className="relative group inline-flex items-center">
+                        <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal normal-case">
+                          Enables Google's TurboQuant 3-bit scalar quantization on PPO neural network weights and technical features, limiting local compute VRAM/RAM footprints.
+                        </div>
+                      </div>
+                    </label>
+                    <span className="text-xs text-muted-foreground block">Compress model weights for resource-limited local hardware.</span>
                   </div>
-                  <button
-                    onClick={() => {
-                      const newVal = !turboquantEnabled;
-                      setTurboquantEnabled(newVal);
-                      if (session?.user && (session as any)?.accessToken) {
-                        axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
-                          turboquant_enabled: newVal
-                        }, {
-                          headers: { Authorization: `Bearer ${(session as any).accessToken}` }
-                        }).catch(console.error);
-                      }
-                    }}
-                    className={`px-4 py-2.5 rounded-md text-xs font-semibold border transition-all shrink-0 min-w-[200px] text-center ${
-                      turboquantEnabled 
-                        ? 'border-trading-green bg-trading-green/10 text-trading-green ring-1 ring-trading-green border-trading-green/20' 
-                        : 'border-border bg-background hover:bg-accent text-foreground'
-                    }`}
-                  >
-                    {turboquantEnabled ? "TurboQuant Active (STE)" : "Compression Disabled"}
-                  </button>
+                  
+                  {/* Segmented Control Switcher */}
+                  <div className="flex bg-secondary/40 p-1 rounded-lg border border-border shrink-0 max-w-[340px] w-full sm:w-auto relative">
+                    <button
+                      onClick={() => {
+                        if (!turboquantEnabled) {
+                          setTurboquantEnabled(true);
+                          if (session?.user && (session as any)?.accessToken) {
+                            axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
+                              turboquant_enabled: true
+                            }, {
+                              headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+                            }).catch(console.error);
+                          }
+                        }
+                      }}
+                      className={`flex-1 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                        turboquantEnabled 
+                          ? 'bg-trading-green text-white shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      3-bit Enabled
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (turboquantEnabled) {
+                          setTurboquantEnabled(false);
+                          if (session?.user && (session as any)?.accessToken) {
+                            axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
+                              turboquant_enabled: false
+                            }, {
+                              headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+                            }).catch(console.error);
+                          }
+                        }
+                      }}
+                      className={`flex-1 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                        !turboquantEnabled 
+                          ? 'bg-primary text-primary-foreground shadow-sm' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      Disabled
+                    </button>
+                  </div>
                 </div>
               </div>
 
