@@ -16,7 +16,7 @@ export default function SettingsPage() {
     setMounted(true)
   }, [])
   
-  const activeTheme = mounted ? theme : "system"
+  const activeTheme = mounted ? (theme || "system") : "system"
   
   // State for Trading Config (Token Limiter)
   const [config, setConfig] = useState<any>({
