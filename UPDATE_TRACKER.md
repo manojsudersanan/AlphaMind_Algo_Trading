@@ -66,3 +66,14 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: stream live trades to Trading Engine terminal and add Backtesting to NavBar`
 * **Status:** Completed
 
+### [2026-06-05] Live HFT Tracer & Database Schema Fix
+* **Goal:** Fix the issue where the live execution tracer was frozen showing only 4 trades and not updating in real time.
+* **Changes:**
+  1. Added missing `fallback_to_previous_day` and `turboquant_enabled` columns to SQLite `trading_configs` table.
+  2. Replaced the unicode Rupee symbol (`₹`) in Python stdout prints with `Rs.` to prevent Windows terminal encoding crashes.
+  3. Hardened the background algorithmic trading loop in `trading_task.py` with generic exception handling so it recovers gracefully from transient errors.
+  4. Configured Python environment variables `PYTHONIOENCODING=utf-8` and `PYTHONUNBUFFERED=1` to optimize logging stream.
+* **Git Commit Message:** `fix: resolve SQLite schema misalignment and encoding errors in HFT trading task`
+* **Status:** Completed
+
+

@@ -78,7 +78,7 @@ class VirtualBroker:
             self.available_cash += total_cost_or_revenue
             self.holdings[symbol] -= abs(quantity)
             
-        print(f"[VirtualBroker] Simulated {'BUY' if is_buy else 'SELL'} {abs(quantity)} {symbol} @ {fill_price:.2f} (Comm: ₹{commission:.2f}) | NLP Score: {mood_score}")
+        print(f"[VirtualBroker] Simulated {'BUY' if is_buy else 'SELL'} {abs(quantity)} {symbol} @ {fill_price:.2f} (Comm: Rs.{commission:.2f}) | NLP Score: {mood_score}")
         
         return {
             "status": "FILLED",

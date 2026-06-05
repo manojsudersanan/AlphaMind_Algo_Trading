@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import axios from "axios"
@@ -20,6 +20,9 @@ export default function TradingSetupPage() {
   const [fallbackToPreviousDay, setFallbackToPreviousDay] = useState(true)
   const [turboquantEnabled, setTurboquantEnabled] = useState(true)
   const [tradeMemories, setTradeMemories] = useState<any[]>([])
+  
+  // Ref to persist transaction tracking across component renders
+  const lastSeenTxIdRef = useRef("")
 
   useEffect(() => {
     const token = (session as any)?.accessToken;
@@ -61,7 +64,6 @@ export default function TradingSetupPage() {
     
     if (engineActive) {
       const token = (session as any)?.accessToken;
-      let lastSeenTxId = "";
       
       const fetchNewTrades = () => {
         if (!token) return;
@@ -76,8 +78,8 @@ export default function TradingSetupPage() {
           
           const newestTrade = trades[0];
           
-          if (!lastSeenTxId) {
-            lastSeenTxId = newestTrade.id;
+          if (!lastSeenTxIdRef.current) {
+            lastSeenTxIdRef.current = newestTrade.id;
             const initialTrades = trades.slice(0, 4).reverse();
             initialTrades.forEach((tx: any) => {
               const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
@@ -87,10 +89,10 @@ export default function TradingSetupPage() {
               const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
               setLogs(prev => [...prev, logMsg]);
             });
-          } else if (newestTrade.id !== lastSeenTxId) {
+          } else if (newestTrade.id !== lastSeenTxIdRef.current) {
             const newTradesList = [];
             for (let i = 0; i < trades.length; i++) {
-              if (trades[i].id === lastSeenTxId) {
+              if (trades[i].id === lastSeenTxIdRef.current) {
                 break;
               }
               newTradesList.push(trades[i]);
@@ -105,7 +107,7 @@ export default function TradingSetupPage() {
               setLogs(prev => [...prev, logMsg]);
             });
             
-            lastSeenTxId = newestTrade.id;
+            lastSeenTxIdRef.current = newestTrade.id;
             
             // Re-fetch balance
             axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
@@ -126,7 +128,7 @@ export default function TradingSetupPage() {
       };
       
       fetchNewTrades();
-      interval = setInterval(fetchNewTrades, 3000);
+      interval = setInterval(fetchNewTrades, 1500); // Poll faster (1.5s) to match HFT updates
     }
     
     return () => {
