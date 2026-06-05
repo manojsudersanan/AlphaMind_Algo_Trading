@@ -101,6 +101,16 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: change Google TurboQuant toggle to a Segmented Control switch layout`
 * **Status:** Completed
 
+### [2026-06-05] Dynamic IST Market Hours Status & Switcher Label
+* **Goal:** Dynamically check Indian stock exchange (NSE/BSE) market hours in real-time, notifying users of the exchange state directly on the buttons.
+* **Changes:**
+  1. Implemented a client-side React effect polling market hours (Mon-Fri 9:15 AM - 3:30 PM IST) aligned with the `Asia/Kolkata` time zone.
+  2. Configured the Live Session button label to dynamically update to `Live Session (Open)` or `Live Session (Closed Sim)` based on real-time market status.
+  3. Integrated current open/closed status messages directly into the closed-market switcher's info tooltip.
+* **Git Commit Message:** `feat: dynamically check IST market hours and update Live Session button text based on market open/closed status`
+* **Status:** Completed
+
+
 
 
 
