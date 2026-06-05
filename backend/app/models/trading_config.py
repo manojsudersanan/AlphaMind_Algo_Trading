@@ -46,6 +46,9 @@ class TradingConfig(Base, UUIDMixin, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     fallback_to_previous_day: Mapped[bool] = mapped_column(Boolean, default=True)
     turboquant_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    token_limiter_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
+    token_limit_amount: Mapped[Decimal] = mapped_column(Numeric(10, 2), default=Decimal('10.00'))
+
     
     # Relationships
     user = relationship("User", back_populates="trading_config")

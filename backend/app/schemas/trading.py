@@ -9,6 +9,8 @@ class TradingConfigBase(BaseModel):
     is_active: bool = False
     fallback_to_previous_day: bool = True
     turboquant_enabled: bool = True
+    token_limiter_enabled: bool = False
+    token_limit_amount: Decimal = Decimal("10.00")
 
 class TradingConfigCreate(TradingConfigBase):
     pass
@@ -19,6 +21,8 @@ class TradingConfigUpdate(BaseModel):
     is_active: bool | None = None
     fallback_to_previous_day: bool | None = None
     turboquant_enabled: bool | None = None
+    token_limiter_enabled: bool | None = None
+    token_limit_amount: float | None = None
 
 class TradingConfigResponse(BaseModel):
     id: UUID
@@ -35,8 +39,11 @@ class TradingConfigResponse(BaseModel):
     is_active: bool
     fallback_to_previous_day: bool
     turboquant_enabled: bool
+    token_limiter_enabled: bool
+    token_limit_amount: Decimal
     created_at: datetime
     updated_at: datetime
+
 
     class Config:
         from_attributes = True
