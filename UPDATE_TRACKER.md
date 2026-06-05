@@ -93,6 +93,15 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: add Segmented Control tab switcher and Info hover tooltips for risk metrics`
 * **Status:** Completed
 
+### [2026-06-05] Google TurboQuant Segmented Control Switcher
+* **Goal:** Convert the confusing single toggle button for model compression to a clean Segmented Control switcher (3-bit Enabled vs. Disabled) and add an info tooltip describing its function.
+* **Changes:**
+  1. Replaced the single-action button under "Google TurboQuant 3-bit Compression" with a segmented switcher containing `3-bit Enabled` (accented with green) and `Disabled` options.
+  2. Embedded an Info icon with a hover-to-display tooltip detailing the 3-bit scalar model compression parameters.
+* **Git Commit Message:** `feat: change Google TurboQuant toggle to a Segmented Control switch layout`
+* **Status:** Completed
+
+
 
 
 
