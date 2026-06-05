@@ -9,9 +9,9 @@ export function useWalletAPI() {
 
   const getHeaders = useCallback(() => {
     return {
-      Authorization: `Bearer ${session?.accessToken}`
+      Authorization: `Bearer ${(session as any)?.accessToken}`
     }
-  }, [session?.accessToken])
+  }, [(session as any)?.accessToken])
 
   const fetchWallet = async () => {
     const res = await axios.get(`${API_BASE_URL}/wallet/`, { headers: getHeaders() })
@@ -36,9 +36,9 @@ export function useTradingAPI() {
 
   const getHeaders = useCallback(() => {
     return {
-      Authorization: `Bearer ${session?.accessToken}`
+      Authorization: `Bearer ${(session as any)?.accessToken}`
     }
-  }, [session?.accessToken])
+  }, [(session as any)?.accessToken])
 
   const fetchConfig = async () => {
     const res = await axios.get(`${API_BASE_URL}/trading/config`, { headers: getHeaders() })

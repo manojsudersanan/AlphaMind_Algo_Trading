@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import axios from "axios"
-import { Activity, ShieldAlert, Cpu, PlayCircle, StopCircle, Info, ArrowLeft, Loader2, BrainCircuit } from "lucide-react"
+import { Activity, ShieldAlert, Cpu, PlayCircle, StopCircle, Info, ArrowLeft, Loader2, BrainCircuit, History, X } from "lucide-react"
 import PnLChart from "@/components/PnLChart"
+import { parseDate } from "@/lib/utils"
 
 const STRATEGY_DETAILS: Record<string, { title: string; definition: string; action: string }> = {
   intraday: {
@@ -50,8 +51,10 @@ export default function TradingSetupPage() {
   const [engineProgress, setEngineProgress] = useState(0)
   const [logs, setLogs] = useState<string[]>([])
   const [walletBalance, setWalletBalance] = useState<number | null>(null)
+  const [tradingCapital, setTradingCapital] = useState<number | null>(null)
   const [transactions, setTransactions] = useState<any[]>([])
   const [showDetailedChart, setShowDetailedChart] = useState(false)
+  const [sessionsList, setSessionsList] = useState<any[]>([])
   
   // Toggles & Memory States
   const [fallbackToPreviousDay, setFallbackToPreviousDay] = useState(true)
@@ -63,6 +66,19 @@ export default function TradingSetupPage() {
 
   // Market hours checker (9:15 AM - 3:30 PM IST, Mon-Fri)
   const [marketOpen, setMarketOpen] = useState(false)
+
+  // Esc Key Modal Closer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowDetailedChart(false)
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown)
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [])
 
   useEffect(() => {
     const checkMarket = () => {
@@ -106,7 +122,10 @@ export default function TradingSetupPage() {
       axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => setWalletBalance(Number(res.data.balance) || 0))
+      .then(res => {
+        setWalletBalance(Number(res.data.balance) || 0)
+        setTradingCapital(Number(res.data.trading_capital) || 0)
+      })
       .catch(console.error)
 
       axios.get("http://127.0.0.1:8000/api/v1/trading/config", {
@@ -134,11 +153,20 @@ export default function TradingSetupPage() {
       .catch(console.error)
 
       // Fetch initial transactions
-      axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=100", {
+      axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=500", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => {
         setTransactions(res.data || [])
+      })
+      .catch(console.error)
+
+      // Fetch deployment sessions history
+      axios.get("http://127.0.0.1:8000/api/v1/trading/sessions", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => {
+        setSessionsList(res.data || [])
       })
       .catch(console.error)
     }
@@ -152,27 +180,55 @@ export default function TradingSetupPage() {
       
       const fetchNewTrades = () => {
         if (!token) return;
-        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=100", {
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=500", {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => {
           const txs = res.data || [];
           setTransactions(txs);
-          const trades = txs.filter((tx: any) => tx.type.includes("profit") || tx.type.includes("loss"));
+          const trades = txs.filter((tx: any) => tx.type.includes("profit") || tx.type.includes("loss") || tx.description.includes("Risk Veto"));
           
           if (trades.length === 0) return;
           
           const newestTrade = trades[0];
           
+          const getSymbol = (tx: any) => {
+            if (tx.description.includes("RELIANCE")) return "RELIANCE";
+            if (tx.description.includes("BANKNIFTY")) return "BANKNIFTY";
+            if (tx.description.includes("HDFCBANK")) return "HDFCBANK";
+            if (tx.description.includes("INFY")) return "INFY";
+            if (tx.description.includes("NIFTY 50")) return "NIFTY 50";
+            return tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
+          };
+
           if (!lastSeenTxIdRef.current) {
             lastSeenTxIdRef.current = newestTrade.id;
             const initialTrades = trades.slice(0, 4).reverse();
             initialTrades.forEach((tx: any) => {
-              const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
+              const isVeto = tx.description.includes("Risk Veto");
               const isProfit = tx.type.includes("profit");
               const amt = Number(tx.amount).toFixed(2);
-              const timeStr = new Date(tx.created_at).toLocaleTimeString();
-              const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
+              const timeStr = parseDate(tx.created_at).toLocaleTimeString();
+              const symbol = getSymbol(tx);
+              
+              let logMsg = "";
+              if (isVeto) {
+                if (tx.description.includes("Geopolitical/Macro")) {
+                  const parts = tx.description.split("Avoided Geopolitical/Macro Drawdown: ");
+                  const details = parts[1] ? parts[1].replace(")", "") : "Macro Danger";
+                  logMsg = `[Macro Veto] ${timeStr} - Capital preserved in Cash | Threat: ${details}`;
+                } else {
+                  logMsg = `[Risk Veto] ${timeStr} - Vetoed trade cycle. Capital preserved in Cash.`;
+                }
+              } else {
+                let suffix = "";
+                if (tx.description.includes("Closed-Market Sim")) {
+                  suffix = " (Closed-Market Sim)";
+                } else if (tx.description.includes("Prev Day Fallback")) {
+                  suffix = " (Prev Day Fallback)";
+                }
+                logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}${suffix}`;
+              }
               setLogs(prev => [...prev, logMsg]);
             });
           } else if (newestTrade.id !== lastSeenTxIdRef.current) {
@@ -185,11 +241,30 @@ export default function TradingSetupPage() {
             }
             
             newTradesList.reverse().forEach((tx: any) => {
-              const symbol = tx.description.includes("scalping") ? "RELIANCE" : tx.description.includes("volatility") ? "BANKNIFTY" : "NIFTY 50";
+              const isVeto = tx.description.includes("Risk Veto");
               const isProfit = tx.type.includes("profit");
               const amt = Number(tx.amount).toFixed(2);
-              const timeStr = new Date(tx.created_at).toLocaleTimeString();
-              const logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}`;
+              const timeStr = parseDate(tx.created_at).toLocaleTimeString();
+              const symbol = getSymbol(tx);
+              
+              let logMsg = "";
+              if (isVeto) {
+                if (tx.description.includes("Geopolitical/Macro")) {
+                  const parts = tx.description.split("Avoided Geopolitical/Macro Drawdown: ");
+                  const details = parts[1] ? parts[1].replace(")", "") : "Macro Danger";
+                  logMsg = `[Macro Veto] ${timeStr} - Capital preserved in Cash | Threat: ${details}`;
+                } else {
+                  logMsg = `[Risk Veto] ${timeStr} - Vetoed trade cycle. Capital preserved in Cash.`;
+                }
+              } else {
+                let suffix = "";
+                if (tx.description.includes("Closed-Market Sim")) {
+                  suffix = " (Closed-Market Sim)";
+                } else if (tx.description.includes("Prev Day Fallback")) {
+                  suffix = " (Prev Day Fallback)";
+                }
+                logMsg = `[Trade] ${timeStr} - Executed Native ${isProfit ? "BUY" : "SELL"} on ${symbol} | Result: ${isProfit ? "+" : "-"}₹${amt}${suffix}`;
+              }
               setLogs(prev => [...prev, logMsg]);
             });
             
@@ -199,7 +274,10 @@ export default function TradingSetupPage() {
             axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
               headers: { Authorization: `Bearer ${token}` }
             })
-            .then(r => setWalletBalance(Number(r.data.balance) || 0))
+            .then(r => {
+              setWalletBalance(Number(r.data.balance) || 0)
+              setTradingCapital(Number(r.data.trading_capital) || 0)
+            })
             .catch(console.error);
 
             // Re-fetch memory analysis
@@ -207,6 +285,13 @@ export default function TradingSetupPage() {
               headers: { Authorization: `Bearer ${token}` }
             })
             .then(r => setTradeMemories(r.data || []))
+            .catch(console.error);
+
+            // Re-fetch sessions list to update current session pnl
+            axios.get("http://127.0.0.1:8000/api/v1/trading/sessions", {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+            .then(r => setSessionsList(r.data || []))
             .catch(console.error);
           }
         })
@@ -223,11 +308,19 @@ export default function TradingSetupPage() {
   }, [engineActive, session]);
 
   const handleToggleEngine = async () => {
+    const token = (session as any)?.accessToken;
     if (engineActive) {
-      if ((session as any)?.accessToken) {
+      if (token) {
          await axios.post("http://127.0.0.1:8000/api/v1/trading/stop", {}, {
-           headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+           headers: { Authorization: `Bearer ${token}` }
+         }).catch(console.error)
+
+         // Re-fetch sessions list
+         axios.get("http://127.0.0.1:8000/api/v1/trading/sessions", {
+           headers: { Authorization: `Bearer ${token}` }
          })
+         .then(res => setSessionsList(res.data || []))
+         .catch(console.error)
       }
       setEngineActive(false)
       setLogs([])
@@ -236,6 +329,11 @@ export default function TradingSetupPage() {
 
     if (walletBalance === null || walletBalance < 1000) {
       alert("Insufficient Paper Wallet Funds. Please deposit at least ₹1000 in your wallet before deploying the engine.");
+      return;
+    }
+
+    if (tradingCapital === null || tradingCapital < 50) {
+      alert("Halt! You have ₹0 active deployed capital in your Algorithmic Wallet. Please navigate to the Ledger & Wallet page to deploy capital into the engine before starting.");
       return;
     }
   
@@ -267,19 +365,28 @@ export default function TradingSetupPage() {
       if (progress >= 115) {
         clearInterval(interval)
         
-        if ((session as any)?.accessToken) {
+        if (token) {
            axios.put("http://127.0.0.1:8000/api/v1/trading/config", {
              trading_type: tradingType,
              target_return_rate: returnRate,
              fallback_to_previous_day: fallbackToPreviousDay,
              turboquant_enabled: turboquantEnabled
            }, {
-             headers: { Authorization: `Bearer ${(session as any).accessToken}` }
+             headers: { Authorization: `Bearer ${token}` }
            })
            .then(() => {
               axios.post("http://127.0.0.1:8000/api/v1/trading/start", {}, {
-                headers: { Authorization: `Bearer ${(session as any).accessToken}` }
-              }).catch(console.error)
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              .then(() => {
+                 // Re-fetch sessions list
+                 axios.get("http://127.0.0.1:8000/api/v1/trading/sessions", {
+                   headers: { Authorization: `Bearer ${token}` }
+                 })
+                 .then(res => setSessionsList(res.data || []))
+                 .catch(console.error)
+              })
+              .catch(console.error)
            })
            .catch(console.error)
         }
@@ -293,8 +400,8 @@ export default function TradingSetupPage() {
 
   return (
     <div className="pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-10">
-      <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-4 transition-colors">
-        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Dashboard
+      <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card/40 hover:bg-secondary/35 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-200 mb-6 w-fit shadow-sm">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
       </Link>
       
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -423,7 +530,7 @@ export default function TradingSetupPage() {
                       <div className="relative group inline-flex items-center">
                         <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal normal-case">
-                          Controls the neural network feed inputs. When the stock exchange is closed (outside Mon-Fri 9:15-15:30 IST), Live Session will simulate ticking feeds. Current state: {marketOpen ? "OPEN (Real-time active)" : "CLOSED (Simulated active)"}.
+                           Controls the neural network feed inputs. When the stock exchange is closed (outside Mon-Fri 9:15-15:30 IST), Live Session will simulate ticking feeds. Current state: {marketOpen ? "OPEN (Real-time active)" : "CLOSED (Simulated active)"}.
                         </div>
                       </div>
                     </label>
@@ -487,7 +594,7 @@ export default function TradingSetupPage() {
                       <div className="relative group inline-flex items-center">
                         <Info className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground cursor-pointer transition-colors" />
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-2 bg-popover text-popover-foreground text-[10px] rounded border border-border shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-normal font-normal normal-case">
-                          Enables Google's TurboQuant 3-bit scalar quantization on PPO neural network weights and technical features, limiting local compute VRAM/RAM footprints.
+                          Enables Google&apos;s TurboQuant 3-bit scalar quantization on PPO neural network weights and technical features, limiting local compute VRAM/RAM footprints.
                         </div>
                       </div>
                     </label>
@@ -646,7 +753,7 @@ export default function TradingSetupPage() {
                   <div key={mem.id || idx} className="p-3 rounded-md bg-secondary/20 border border-border/50 text-xs space-y-1 hover:border-border transition-colors">
                     <div className="flex justify-between font-mono text-[10px] text-muted-foreground mb-1">
                       <span className="font-bold">Iteration #{tradeMemories.length - idx}</span>
-                      <span>{new Date(mem.created_at).toLocaleTimeString()}</span>
+                      <span>{parseDate(mem.created_at).toLocaleTimeString()}</span>
                     </div>
                     <p className="text-foreground leading-relaxed">{mem.status_summary}</p>
                     <div className="flex justify-between pt-1.5 font-mono text-[10px] border-t border-border/20 mt-1">
@@ -657,6 +764,50 @@ export default function TradingSetupPage() {
                     </div>
                   </div>
                 ))
+              )}
+            </div>
+          </div>
+
+          {/* Trading Sessions Panel */}
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col">
+            <div className="flex items-center gap-2 mb-4">
+              <History className="h-5 w-5 text-trading-blue" />
+              <h2 className="text-lg font-semibold">Trading Session Logs</h2>
+            </div>
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {sessionsList.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No active or historical deployment sessions recorded.</p>
+              ) : (
+                sessionsList.map((sess, idx) => {
+                  const duration = sess.end_time 
+                    ? `${Math.round((parseDate(sess.end_time).getTime() - parseDate(sess.start_time).getTime()) / 60000)} mins`
+                    : "Active Now"
+                  const pnlVal = sess.end_balance 
+                    ? Number(sess.end_balance) - Number(sess.start_balance)
+                    : null
+                  return (
+                    <div key={sess.id || idx} className="p-3 rounded-md bg-secondary/10 border border-border/50 text-xs space-y-1.5 hover:border-border transition-colors">
+                      <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+                        <span className="font-bold uppercase text-primary">Session #{sessionsList.length - idx}</span>
+                        <span>{duration}</span>
+                      </div>
+                      <div className="flex justify-between text-[11px] text-foreground">
+                        <span className="capitalize font-medium">Model: {sess.strategy_type === 'fno' ? 'F&O' : sess.strategy_type === 'scalping' ? 'Scalper Zone' : sess.strategy_type === 'volatility' ? 'Volatility Edge' : sess.strategy_type}</span>
+                        <span className="font-mono text-muted-foreground">Target: {sess.target_return}%</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-1.5 border-t border-border/20 font-mono text-[10px] mt-1">
+                        <span className="text-muted-foreground">Start: {parseDate(sess.start_time).toLocaleTimeString()}</span>
+                        {pnlVal !== null ? (
+                          <span className={`font-bold ${pnlVal >= 0 ? "text-trading-green" : "text-trading-red"}`}>
+                            PnL: {pnlVal >= 0 ? "+" : ""}₹{pnlVal.toFixed(2)}
+                          </span>
+                        ) : (
+                          <span className="text-trading-green font-bold animate-pulse">Running...</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
               )}
             </div>
           </div>
@@ -761,34 +912,34 @@ export default function TradingSetupPage() {
       {/* Detailed PnL Chart Modal */}
       {showDetailedChart && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-border/50 flex justify-between items-center bg-secondary/15">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 relative">
+            {/* Absolute close button for extra visibility and easy touch closure */}
+            <button
+              onClick={() => setShowDetailedChart(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-destructive p-1.5 rounded-full hover:bg-secondary/20 transition-all z-10"
+              title="Close modal"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-secondary/15">
               <div>
-                <h2 className="text-2xl font-bold flex items-center gap-2">
+                <h2 className="text-2xl font-bold flex items-center gap-2 pr-8 sm:pr-0">
                   <Activity className="h-6 w-6 text-primary" /> Detailed Performance Analytics
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">Real-time model equity and trade execution monitoring.</p>
               </div>
               <button 
                 onClick={() => setShowDetailedChart(false)}
-                className="px-3.5 py-2 rounded-md font-semibold text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 border border-destructive/30 bg-destructive/10 hover:bg-destructive/20 active:bg-destructive/30 rounded-lg text-xs font-semibold text-destructive transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-destructive/50"
+                title="Close"
               >
-                Close
+                <X className="h-4 w-4" /> Close View
               </button>
             </div>
             
-            <div className="p-6 h-[400px] w-full bg-[#0d1117] flex flex-col">
+            <div className="h-[400px] w-full bg-[#0d1117] flex flex-col p-6 rounded-b-xl border-t border-border/30">
               <PnLChart transactions={transactions} variant="detailed" interactive={true} />
-            </div>
-            
-            <div className="p-4 bg-secondary/20 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground">
-              <span>Press Esc or click Close to return. Updates automatically as the algorithmic agent executes trades.</span>
-              <button 
-                onClick={() => setShowDetailedChart(false)}
-                className="px-5 py-2 rounded-md font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-              >
-                Close View
-              </button>
             </div>
           </div>
         </div>

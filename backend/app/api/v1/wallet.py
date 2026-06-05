@@ -110,3 +110,58 @@ async def get_transactions(
         
     transactions = await wallet_repo.get_transactions(db, wallet.id, limit)
     return transactions
+
+@router.post("/allocate")
+async def allocate_capital(
+    transaction_in: TransactionCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """Allocate capital to the trading engine."""
+    if transaction_in.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be positive")
+    
+    wallet_repo = WalletRepository()
+    wallet = await wallet_repo.get_by_user_id(db, current_user.id)
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Wallet not found")
+        
+    if wallet.withdrawable_balance < transaction_in.amount:
+        raise HTTPException(status_code=400, detail="Insufficient withdrawable cash to allocate")
+        
+    wallet.trading_capital += transaction_in.amount
+    
+    # Add transaction log using FEE type for allocate
+    from app.models.wallet import TransactionType
+    await wallet_repo.add_transaction(db, wallet.id, transaction_in.amount, TransactionType.FEE, f"Capital Deployed to Trading Engine: {transaction_in.description or ''}")
+    
+    await db.commit()
+    return {"status": "success", "amount": float(transaction_in.amount), "trading_capital": float(wallet.trading_capital)}
+
+@router.post("/deallocate")
+async def deallocate_capital(
+    transaction_in: TransactionCreate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """Recall capital from the trading engine back to withdrawable cash."""
+    if transaction_in.amount <= 0:
+        raise HTTPException(status_code=400, detail="Amount must be positive")
+        
+    wallet_repo = WalletRepository()
+    wallet = await wallet_repo.get_by_user_id(db, current_user.id)
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Wallet not found")
+        
+    if wallet.trading_capital < transaction_in.amount:
+        raise HTTPException(status_code=400, detail="Insufficient capital deployed to recall")
+        
+    wallet.trading_capital -= transaction_in.amount
+    
+    # Add transaction log using DEPOSIT type for recall
+    from app.models.wallet import TransactionType
+    await wallet_repo.add_transaction(db, wallet.id, transaction_in.amount, TransactionType.DEPOSIT, f"Capital Recalled from Trading Engine: {transaction_in.description or ''}")
+    
+    await db.commit()
+    return {"status": "success", "amount": float(transaction_in.amount), "trading_capital": float(wallet.trading_capital)}
+

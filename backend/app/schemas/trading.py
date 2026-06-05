@@ -40,3 +40,35 @@ class TradingConfigResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TradeMemoryResponse(BaseModel):
+    id: UUID
+    user_id: UUID
+    win_rate: float
+    net_pnl: float
+    avg_profit: float
+    avg_loss: float
+    adapted_multiplier: float
+    status_summary: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class TradingSessionResponse(BaseModel):
+    id: UUID
+    user_id: UUID
+    strategy_type: str
+    target_return: float
+    start_time: datetime
+    end_time: datetime | None
+    start_balance: Decimal
+    end_balance: Decimal | None
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+

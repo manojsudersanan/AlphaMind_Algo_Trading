@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlayCircle, FastForward, Activity, MonitorPlay, ArrowLeft, BrainCircuit, BarChart2 } from "lucide-react"
+import { PlayCircle, Activity, MonitorPlay, ArrowLeft, BrainCircuit, BarChart2 } from "lucide-react"
 
 export default function PaperTradingPage() {
   const [running, setRunning] = useState(false)
@@ -30,8 +30,8 @@ export default function PaperTradingPage() {
 
   return (
     <div className="pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
-      <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-4 transition-colors">
-        <ArrowLeft className="h-4 w-4 mr-1" /> Back to Dashboard
+      <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card/40 hover:bg-secondary/35 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-200 mb-6 w-fit shadow-sm">
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
       </Link>
       
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

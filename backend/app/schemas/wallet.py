@@ -34,6 +34,7 @@ class TransactionResponse(TransactionCreate):
     id: UUID
     wallet_id: UUID
     created_at: datetime
+    running_pnl: Decimal | None = None
 
     class Config:
         from_attributes = True

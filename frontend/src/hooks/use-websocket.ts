@@ -37,10 +37,10 @@ export function useAISignalsSocket() {
   const ws = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    if (!session?.accessToken) return
+    if (!(session as any)?.accessToken) return
 
     setStatus("connecting")
-    const socket = new WebSocket(`ws://localhost:8000/ws/signals?token=${session.accessToken}`)
+    const socket = new WebSocket(`ws://localhost:8000/ws/signals?token=${(session as any).accessToken}`)
     ws.current = socket
 
     socket.onopen = () => setStatus("connected")
@@ -57,7 +57,7 @@ export function useAISignalsSocket() {
     return () => {
       socket.close()
     }
-  }, [session?.accessToken])
+  }, [(session as any)?.accessToken])
 
   return { signals, status }
 }

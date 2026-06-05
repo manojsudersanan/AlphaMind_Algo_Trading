@@ -9,3 +9,4 @@ from .portfolio import Portfolio
 from .paper_trade import PaperTrade
 from .signal import AISignal
 from .trade_memory import TradeMemory
+from .trading_session import TradingSession

@@ -13,6 +13,8 @@ from typing import List, Dict, Any
 GNEWS_API = "https://gnews.io/api/v4/search"
 NEWSDATA_API = "https://newsdata.io/api/1/latest"
 
+ACTIVE_SIMULATED_SHOCKS: List[Dict[str, Any]] = []
+
 STOCK_KEYWORDS = {
     "NIFTY 50": ["nifty", "nifty50", "indian market", "sensex"],
     "BANKNIFTY": ["banknifty", "bank nifty", "banking sector india"],
@@ -148,6 +150,10 @@ async def get_market_intelligence() -> Dict[str, Any]:
     """Main entry point: fetch news, analyze, and return structured intelligence."""
     news = await fetch_live_news()
     effects = map_news_to_stocks(news)
+    
+    # Append any active simulated news shocks
+    for shock in ACTIVE_SIMULATED_SHOCKS:
+        effects.insert(0, shock)
     
     short_term = [e for e in effects if e["timeframe"] == "SHORT TERM"]
     long_term = [e for e in effects if e["timeframe"] == "LONG TERM"]

@@ -50,12 +50,12 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.accessToken
+        token.accessToken = (user as any).accessToken
       }
       return token
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string
+      (session as any).accessToken = token.accessToken as string
       return session
     }
   },

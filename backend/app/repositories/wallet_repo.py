@@ -35,10 +35,28 @@ class WalletRepository(BaseRepository[WalletAccount]):
         return wallet
 
     async def get_transactions(self, db: AsyncSession, wallet_id: uuid.UUID, limit: int = 100) -> list[WalletTransaction]:
+        from sqlalchemy import func, case
+        
+        running_pnl_col = func.sum(
+            case(
+                (WalletTransaction.transaction_type == TransactionType.TRADE_PROFIT, WalletTransaction.amount),
+                (WalletTransaction.transaction_type == TransactionType.TRADE_LOSS, -WalletTransaction.amount),
+                else_=0
+            )
+        ).over(
+            partition_by=WalletTransaction.wallet_id,
+            order_by=(WalletTransaction.created_at.asc(), WalletTransaction.id.asc())
+        ).label("running_pnl")
+        
         result = await db.execute(
-            select(WalletTransaction)
+            select(WalletTransaction, running_pnl_col)
             .where(WalletTransaction.wallet_id == wallet_id)
             .order_by(WalletTransaction.created_at.desc())
             .limit(limit)
         )
-        return list(result.scalars().all())
+        
+        transactions = []
+        for tx, running_pnl in result.all():
+            tx.running_pnl = running_pnl
+            transactions.append(tx)
+        return transactions

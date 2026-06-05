@@ -32,6 +32,12 @@ export function NavBar() {
             <Link href="/wallet" className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-2">
               <Wallet className="h-4 w-4" /> Wallet
             </Link>
+            <Link href="/journal" className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-2">
+              <span className="flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-book-open h-4 w-4"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Journal
+              </span>
+            </Link>
           </div>
         </div>
         <div className="ml-auto flex items-center space-x-4">

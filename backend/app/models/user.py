@@ -25,6 +25,7 @@ class User(Base, UUIDMixin, TimestampMixin):
     portfolios = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
     paper_trades = relationship("PaperTrade", back_populates="user", cascade="all, delete-orphan")
     trade_memories = relationship("TradeMemory", back_populates="user", cascade="all, delete-orphan")
+    trading_sessions = relationship("TradingSession", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<User(email={self.email}, id={self.id})>"

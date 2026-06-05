@@ -1,11 +1,11 @@
-from typing import Any
+from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from decimal import Decimal
 
 from app.api.dependencies import get_db, get_current_user
-from app.schemas.trading import TradingConfigCreate, TradingConfigUpdate, TradingConfigResponse
+from app.schemas.trading import TradingConfigCreate, TradingConfigUpdate, TradingConfigResponse, TradeMemoryResponse, TradingSessionResponse
 from app.models.user import User
 from app.models.trading_config import TradingConfig
 
@@ -68,6 +68,7 @@ async def start_trading_engine(
 ) -> Any:
     """Activates the AI algorithmic engine for the user."""
     from sqlalchemy.future import select
+    from datetime import datetime
     result = await db.execute(select(TradingConfig).filter(TradingConfig.user_id == current_user.id))
     config = result.scalars().first()
     
@@ -75,10 +76,36 @@ async def start_trading_engine(
         raise HTTPException(status_code=400, detail="Configuration missing")
         
     config.is_active = True
+    
+    # Also log this as a new trading session
+    from app.models.trading_session import TradingSession
+    from app.models.wallet import WalletAccount
+    from sqlalchemy import update
+    
+    # Fetch current balance
+    wallet_res = await db.execute(select(WalletAccount).filter(WalletAccount.user_id == current_user.id))
+    wallet = wallet_res.scalars().first()
+    start_bal = wallet.balance if wallet else Decimal("0.0")
+    
+    # Stop any currently active sessions first to avoid duplicates
+    await db.execute(
+        update(TradingSession)
+        .filter(TradingSession.user_id == current_user.id, TradingSession.status == "active")
+        .values(status="completed", end_time=datetime.utcnow(), end_balance=start_bal)
+    )
+    
+    # Create new session
+    new_session = TradingSession(
+        user_id=current_user.id,
+        strategy_type=config.trading_type.value if hasattr(config.trading_type, "value") else str(config.trading_type),
+        target_return=float(config.target_return_rate),
+        start_time=datetime.utcnow(),
+        start_balance=start_bal,
+        status="active"
+    )
+    db.add(new_session)
     await db.commit()
     
-    # In a full Native rollout, we would trigger an Event or FastAPI BackgroundTask here 
-    # to begin the Market Intelligence Scanner loop for this specific user.
     return {"status": "started", "message": "AlphaMind Algorithm Engaged."}
 
 @router.post("/stop")
@@ -88,11 +115,27 @@ async def stop_trading_engine(
 ) -> Any:
     """Deactivates the AI algorithmic engine for the user."""
     from sqlalchemy.future import select
+    from sqlalchemy import update
+    from datetime import datetime
     result = await db.execute(select(TradingConfig).filter(TradingConfig.user_id == current_user.id))
     config = result.scalars().first()
     
     if config:
         config.is_active = False
+        
+        # Complete the active session
+        from app.models.trading_session import TradingSession
+        from app.models.wallet import WalletAccount
+        
+        wallet_res = await db.execute(select(WalletAccount).filter(WalletAccount.user_id == current_user.id))
+        wallet = wallet_res.scalars().first()
+        end_bal = wallet.balance if wallet else Decimal("0.0")
+        
+        await db.execute(
+            update(TradingSession)
+            .filter(TradingSession.user_id == current_user.id, TradingSession.status == "active")
+            .values(status="completed", end_time=datetime.utcnow(), end_balance=end_bal)
+        )
         await db.commit()
         
     return {"status": "stopped", "message": "AlphaMind Algorithm Disengaged."}
@@ -110,7 +153,7 @@ async def toggle_edge_connection(online: bool):
     edge_node.set_online_status(online)
     return {"status": "success", "edge_state": edge_node.get_status()}
 
-@router.get("/memory")
+@router.get("/memory", response_model=List[TradeMemoryResponse])
 async def get_trading_memory(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
@@ -127,3 +170,21 @@ async def get_trading_memory(
     )
     memories = result.scalars().all()
     return memories
+
+@router.get("/sessions", response_model=List[TradingSessionResponse])
+async def get_trading_sessions(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """Get the user's trading deployment sessions."""
+    from sqlalchemy.future import select
+    from app.models.trading_session import TradingSession
+    
+    result = await db.execute(
+        select(TradingSession)
+        .filter(TradingSession.user_id == current_user.id)
+        .order_by(TradingSession.start_time.desc())
+        .limit(20)
+    )
+    sessions = result.scalars().all()
+    return sessions

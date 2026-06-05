@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef } from "react"
 import { TrendingUp, TrendingDown, Clock, Activity } from "lucide-react"
+import { parseDate } from "@/lib/utils"
 
 interface Transaction {
   id: string
@@ -9,6 +10,7 @@ interface Transaction {
   type: string
   description?: string
   created_at: string
+  running_pnl?: string | number
 }
 
 interface PnLChartProps {
@@ -35,42 +37,46 @@ export default function PnLChart({
 
     // Sort chronologically (oldest first)
     const sortedTrades = [...trades].sort(
-      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      (a, b) => parseDate(a.created_at).getTime() - parseDate(b.created_at).getTime()
     )
 
     let runningPnL = 0
     const points = sortedTrades.map((tx) => {
       const isProfit = tx.type?.toLowerCase().includes("profit")
       const amt = Number(tx.amount) || 0
-      runningPnL = isProfit ? runningPnL + amt : runningPnL - amt
+      if (tx.running_pnl !== undefined && tx.running_pnl !== null) {
+        runningPnL = Number(tx.running_pnl)
+      } else {
+        runningPnL = isProfit ? runningPnL + amt : runningPnL - amt
+      }
       return {
         pnl: runningPnL,
-        time: new Date(tx.created_at),
+        time: parseDate(tx.created_at),
         tx,
       }
     })
 
-    // If we don't have enough points, generate a beautiful mock upward series
+    // If we don't have enough points, return a flat line at zero
     if (points.length < 2) {
       const now = Date.now()
       return [
-        { pnl: 0, time: new Date(now - 900000), tx: null },
-        { pnl: 180, time: new Date(now - 800000), tx: null },
-        { pnl: 80, time: new Date(now - 700000), tx: null },
-        { pnl: 340, time: new Date(now - 600000), tx: null },
-        { pnl: 290, time: new Date(now - 500000), tx: null },
-        { pnl: 580, time: new Date(now - 400000), tx: null },
-        { pnl: 510, time: new Date(now - 300000), tx: null },
-        { pnl: 820, time: new Date(now - 200000), tx: null },
-        { pnl: 750, time: new Date(now - 100000), tx: null },
-        { pnl: 1150, time: new Date(now), tx: null },
+        { pnl: 0, time: new Date(now - 60000), tx: null },
+        { pnl: 0, time: new Date(now), tx: null },
       ]
     }
 
-    // Prepend a 0 starting point to look smooth
+    // Prepend a starting point to look smooth and reflect correct baseline
     const firstTime = points[0].time.getTime()
+    const firstTx = points[0].tx
+    let startingPnL = 0
+    if (firstTx) {
+      const firstIsProfit = firstTx.type?.toLowerCase().includes("profit")
+      const firstAmt = Number(firstTx.amount) || 0
+      startingPnL = points[0].pnl - (firstIsProfit ? firstAmt : -firstAmt)
+    }
+
     const startingPoint = {
-      pnl: 0,
+      pnl: startingPnL,
       time: new Date(firstTime - 60000),
       tx: null,
     }
@@ -94,8 +100,8 @@ export default function PnLChart({
   // 2. Find min/max values to scale the chart
   const { points, minPnL, maxPnL, isProfitFinal, finalValue } = useMemo(() => {
     const pnlValues = chartData.map((d) => d.pnl)
-    const min = Math.min(...pnlValues, 0)
-    const max = Math.max(...pnlValues, 100)
+    const min = pnlValues.length > 0 ? Math.min(...pnlValues) : 0
+    const max = pnlValues.length > 0 ? Math.max(...pnlValues) : 100
     const lastVal = chartData[chartData.length - 1]?.pnl || 0
 
     return {

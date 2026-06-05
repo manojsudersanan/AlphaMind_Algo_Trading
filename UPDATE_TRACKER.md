@@ -120,9 +120,13 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: implement segregated capital stats cards, signs formatting, ledger tooltips, and dynamic switcher colors`
 * **Status:** Completed
 
-
-
-
-
-
-
+### [2026-06-05] PnL Chart Scaling, Responsive Modal, Timezone, and Database Partition Fixes
+* **Goal:** Correct the P&L curve rendering to prevent flat-lines, fix the modal close button usability, adjust database PnL accumulation for multi-user safety, and synchronize timezone date parsing.
+* **Changes:**
+  1. **PnL Chart Auto-scaling**: Configured `PnLChart.tsx` to compute Y-axis minimums and maximums dynamically from the transactions list, preventing the curve from flattening. Added clean marker toggling (`points.length <= 60`) to avoid dot clutter on large datasets.
+  2. **Responsive Close Modal**: Updated `Detailed Performance Analytics` modal header to adapt responsively (`flex-col sm:flex-row`). Enhanced close button visibility with styled destructive borders, and embedded a top-right absolute close icon.
+  3. **Timezone Offset Parsing**: Implemented UTC date validation in `utils.ts` to parse timezone-naive database dates correctly, aligning trade display timestamps with current IST local time.
+  4. **Database PnL Partition**: Modified SQL window function in `wallet_repo.py` to partition trade sums by `wallet_id`, preventing cross-user transaction accumulation.
+  5. **Stitch AI Wireframe Spec**: Compiled structural wireframe layout blueprints in `structural_layout_spec.md` with no styling/color parameters.
+* **Git Commit Message:** `fix: correct pnl chart scaling, responsive modal close visibility, timezone offset, and database partition calculations`
+* **Status:** Completed

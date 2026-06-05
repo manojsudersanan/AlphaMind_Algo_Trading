@@ -10,6 +10,7 @@ import PnLChart from "@/components/PnLChart"
 export default function DashboardPage() {
   const { data: session } = useSession()
   const [walletBalance, setWalletBalance] = useState(0)
+  const [tradingCapital, setTradingCapital] = useState(0)
   const [tradingConfig, setTradingConfig] = useState<any>(null)
   const [marketTicks, setMarketTicks] = useState<any[]>([])
   const [bestPrediction, setBestPrediction] = useState<any>(null)
@@ -41,10 +42,13 @@ export default function DashboardPage() {
         axios.get("http://127.0.0.1:8000/api/v1/wallet/", {
           headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => setWalletBalance(Number(res.data.balance) || 0))
+        .then(res => {
+          setWalletBalance(Number(res.data.balance) || 0)
+          setTradingCapital(Number(res.data.trading_capital) || 0)
+        })
         .catch(console.error)
 
-        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=50", {
+        axios.get("http://127.0.0.1:8000/api/v1/wallet/transactions?limit=200", {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then(res => setTransactions(res.data || []))
@@ -100,10 +104,24 @@ export default function DashboardPage() {
             Welcome back, trader <span className="text-foreground font-medium">{session?.user?.name || session?.user?.email}</span>.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-trading-green/10 text-trading-green px-4 py-2 rounded-full border border-trading-green/20">
-          <div className="h-2 w-2 rounded-full bg-trading-green animate-pulse" />
-          <span className="text-sm font-semibold">Native Engine Online</span>
-        </div>
+        {tradingConfig?.is_active ? (
+          tradingCapital >= 50 ? (
+            <div className="flex items-center gap-2 bg-trading-green/10 text-trading-green px-4 py-2 rounded-full border border-trading-green/20">
+              <div className="h-2 w-2 rounded-full bg-trading-green animate-pulse" />
+              <span className="text-sm font-semibold">Native Engine Online</span>
+            </div>
+          ) : (
+            <Link href="/wallet" className="flex items-center gap-2 bg-trading-gold/10 text-trading-gold px-4 py-2 rounded-full border border-trading-gold/20 hover:bg-trading-gold/20 transition-all">
+              <div className="h-2 w-2 rounded-full bg-trading-gold animate-pulse" />
+              <span className="text-xs font-semibold">Engine Active: Allocate Capital &rarr;</span>
+            </Link>
+          )
+        ) : (
+          <div className="flex items-center gap-2 bg-secondary/30 text-muted-foreground px-4 py-2 rounded-full border border-border">
+            <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+            <span className="text-sm font-semibold">Engine Offline</span>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
