@@ -18,6 +18,14 @@ export default function WalletPage() {
   const [equity, setEquity] = useState(0)
   const [transactions, setTransactions] = useState<any[]>([])
 
+  const totalDeposits = transactions
+    .filter((tx: any) => tx.type === "deposit")
+    .reduce((sum: number, tx: any) => sum + Number(tx.amount), 0)
+    
+  const totalWithdrawals = transactions
+    .filter((tx: any) => tx.type === "withdrawal")
+    .reduce((sum: number, tx: any) => sum + Number(tx.amount), 0)
+
   useEffect(() => {
     const token = (session as any)?.accessToken;
     if (token) {
@@ -181,6 +189,28 @@ export default function WalletPage() {
         </div>
       </div>
 
+      {/* Segregated Capital Flow Tracker */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider block">Total Capital Deposited</span>
+            <span className="text-2xl font-bold text-trading-green font-mono">+₹{totalDeposits.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          </div>
+          <span className="text-[10px] uppercase font-bold tracking-wider text-trading-green bg-trading-green/10 border border-trading-green/20 px-2.5 py-1 rounded-md">
+            Capital Inflow
+          </span>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm flex items-center justify-between">
+          <div className="space-y-1">
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider block">Total Capital Withdrawn</span>
+            <span className="text-2xl font-bold text-trading-red font-mono">-₹{totalWithdrawals.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          </div>
+          <span className="text-[10px] uppercase font-bold tracking-wider text-trading-red bg-trading-red/10 border border-trading-red/20 px-2.5 py-1 rounded-md">
+            Capital Outflow
+          </span>
+        </div>
+      </div>
+
       {/* Transactions */}
       <div className="mt-8 rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border/50 flex justify-between items-center">
@@ -219,14 +249,19 @@ export default function WalletPage() {
                           <span className="text-trading-red flex items-center gap-1"><ArrowDownCircle className="h-4 w-4"/> {tx.type}</span>
                        )}
                     </td>
-                    <td className="px-6 py-4 font-mono font-semibold">
-                      ₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    <td className={`px-6 py-4 font-mono font-semibold ${
+                      tx.type === "deposit" || tx.type.includes("profit") ? "text-trading-green" : "text-trading-red"
+                    }`}>
+                      {tx.type === "deposit" || tx.type.includes("profit") ? "+" : "-"}₹{Number(tx.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4">
                       <span className="bg-trading-green/10 text-trading-green px-2 py-1 rounded-md text-xs font-semibold uppercase">{tx.status || "Completed"}</span>
                     </td>
-                    <td className="px-6 py-4 text-muted-foreground max-w-[200px] truncate">
-                      {tx.description}
+                    <td className="px-6 py-4 text-muted-foreground max-w-[200px] truncate relative group cursor-help">
+                      <span>{tx.description}</span>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 w-64 p-2.5 bg-popover text-popover-foreground text-[10.5px] rounded border border-border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none text-left leading-relaxed whitespace-normal break-words font-normal">
+                        {tx.description}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right text-muted-foreground">
                       {new Date(tx.created_at).toLocaleString()}

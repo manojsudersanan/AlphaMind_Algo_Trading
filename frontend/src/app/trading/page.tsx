@@ -455,7 +455,7 @@ export default function TradingSetupPage() {
                       }}
                       className={`flex-1 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
                         !fallbackToPreviousDay 
-                          ? 'bg-primary text-primary-foreground shadow-sm' 
+                          ? (marketOpen ? 'bg-trading-green text-white shadow-sm shadow-trading-green/20' : 'bg-trading-blue text-white shadow-sm shadow-trading-blue/20')
                           : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >

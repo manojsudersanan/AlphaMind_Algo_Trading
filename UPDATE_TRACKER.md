@@ -110,6 +110,17 @@ If any update causes system instability, you can undo changes using Git.
 * **Git Commit Message:** `feat: dynamically check IST market hours and update Live Session button text based on market open/closed status`
 * **Status:** Completed
 
+### [2026-06-05] Ledger Segregation, Tooltip Previews & Dynamic Switcher Colors
+* **Goal:** Improve ledger data representation (hover preview details, plus/minus signs on amount column, segregated inflow/outflow metrics cards) and align switcher buttons with open/closed color schemes.
+* **Changes:**
+  1. Implemented client-side calculation to segregate total deposits and total withdrawals as individual cards on `/wallet` page.
+  2. Formatting: Configured the ledger's Amount column to prefix outflows with `-` and inflows with `+`, color-coding red and green.
+  3. Description Preview: Added a hover-to-display tooltip to the description column cell to prevent description truncations.
+  4. Swapped Live Session button highlights: Green theme for `Live Session (Open)` and Blue theme for `Live Session (Closed Sim)`.
+* **Git Commit Message:** `feat: implement segregated capital stats cards, signs formatting, ledger tooltips, and dynamic switcher colors`
+* **Status:** Completed
+
+
 
 
 
