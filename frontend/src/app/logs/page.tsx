@@ -55,12 +55,13 @@ export default function LogsPage() {
     
     // 2. Type filter match
     let matchesType = true
+    const transactionTypeLower = t.type?.toLowerCase() || ""
     if (typeFilter === "profit") {
-      matchesType = t.type === "TRADE_PROFIT"
+      matchesType = transactionTypeLower === "trade_profit"
     } else if (typeFilter === "loss") {
-      matchesType = t.type === "TRADE_LOSS"
+      matchesType = transactionTypeLower === "trade_loss"
     } else if (typeFilter === "flow") {
-      matchesType = t.type === "DEPOSIT" || t.type === "WITHDRAWAL"
+      matchesType = transactionTypeLower === "deposit" || transactionTypeLower === "withdrawal"
     }
 
     return matchesSearch && matchesType
@@ -221,22 +222,29 @@ export default function LogsPage() {
               </div>
             ) : (
               filteredTrades.map((t, idx) => {
-                const dateStr = new Date(t.date).toISOString().replace('T', ' ').substring(0, 19)
+                const rawDate = t.created_at || t.date || new Date().toISOString()
+                const dateParsed = new Date(rawDate)
+                const dateStr = isNaN(dateParsed.getTime())
+                  ? new Date().toISOString().replace('T', ' ').substring(0, 19)
+                  : dateParsed.toISOString().replace('T', ' ').substring(0, 19)
                 let logType = "INFO "
                 let logText = ""
+                const typeLower = t.type?.toLowerCase() || ""
                 
-                if (t.type === "TRADE_PROFIT") {
+                if (typeLower === "trade_profit") {
                   logType = "PROFIT"
-                  logText = `\u001b[32m[BUY_FILL] Executed Trade SUCCESS | ${t.description} | Net Change: +Rs.${Number(t.amount).toFixed(2)}\u001b[0m`
-                } else if (t.type === "TRADE_LOSS") {
+                  logText = `[BUY_FILL] Executed Trade SUCCESS | ${t.description} | Net Change: +Rs.${Number(t.amount).toFixed(2)}`
+                } else if (typeLower === "trade_loss") {
                   logType = "LOSS  "
-                  logText = `\u001b[31m[SELL_FILL] Executed Trade CLOSE | ${t.description} | Net Change: -Rs.${Math.abs(Number(t.amount)).toFixed(2)}\u001b[0m`
-                } else if (t.type === "DEPOSIT") {
+                  logText = `[SELL_FILL] Executed Trade CLOSE | ${t.description} | Net Change: -Rs.${Math.abs(Number(t.amount)).toFixed(2)}`
+                } else if (typeLower === "deposit") {
                   logType = "WALLET"
                   logText = `[DEPOSIT] Deployed Capital Inflow: +Rs.${Number(t.amount).toFixed(2)} | Status: COMPLETED`
-                } else if (t.type === "WITHDRAWAL") {
+                } else if (typeLower === "withdrawal") {
                   logType = "WALLET"
                   logText = `[WITHDRAWAL] Recalled Cash Outflow: -Rs.${Math.abs(Number(t.amount)).toFixed(2)} | Status: COMPLETED`
+                } else {
+                  logText = t.description || "System log event recorded."
                 }
                 
                 return (
@@ -250,7 +258,7 @@ export default function LogsPage() {
                     }`}>
                       [{logType}]
                     </span>
-                    <span className="text-foreground/90"> {t.description || "System tick updated."}</span>
+                    <span className="text-foreground/90"> {logText}</span>
                     <span className="float-right text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity font-sans">
                       Balance Delta: {Number(t.amount) >= 0 ? "+" : ""}₹{Number(t.amount).toFixed(2)}
                     </span>
