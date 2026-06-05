@@ -234,7 +234,7 @@ export default function WalletPage() {
   const equity = Number(walletData.balance) || 0
 
   return (
-    <div className="pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-20">
+    <div className="pt-8 space-y-8 max-w-5xl mx-auto pb-20">
       <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card/40 hover:bg-secondary/35 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-200 mb-6 w-fit shadow-sm">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
       </Link>
@@ -279,7 +279,6 @@ export default function WalletPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         {/* Total Equity */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-20 w-20 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/10 blur-xl transition-all group-hover:bg-primary/20" />
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-muted-foreground">Total Account Equity</h3>
             <Wallet className="h-5 w-5 text-primary" />
@@ -292,7 +291,6 @@ export default function WalletPage() {
 
         {/* Algorithmic Deployed Capital */}
         <div className="rounded-xl border border-trading-blue/30 bg-trading-blue/5 p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-20 w-20 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-blue/10 blur-xl transition-all group-hover:bg-trading-blue/20" />
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-trading-blue">Active Deployed Capital</h3>
             <RefreshCcw className="h-5 w-5 text-trading-blue" />
@@ -305,7 +303,6 @@ export default function WalletPage() {
 
         {/* Personal Wallet Cash */}
         <div className="rounded-xl border border-trading-green/30 bg-trading-green/5 p-6 shadow-sm flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-20 w-20 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-green/10 blur-xl transition-all group-hover:bg-trading-green/20" />
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-trading-green">Withdrawable Cash (Personal Wallet)</h3>
             <ArrowUpCircle className="h-5 w-5 text-trading-green" />
@@ -404,8 +401,8 @@ export default function WalletPage() {
 
       {/* Deposit Modal */}
       {showDepositModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border/50">
               <h2 className="text-2xl font-bold">Add Capital</h2>
               <p className="text-sm text-muted-foreground mt-1">Simulate a bank transfer to your local Funding Wallet.</p>
@@ -470,8 +467,8 @@ export default function WalletPage() {
 
       {/* Withdraw Modal */}
       {showWithdrawModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border/50">
               <h2 className="text-2xl font-bold">Withdraw Capital</h2>
               <p className="text-sm text-muted-foreground mt-1">Liquidate funding wallet capital.</p>
@@ -532,8 +529,8 @@ export default function WalletPage() {
 
       {/* Allocate to Algo Modal */}
       {showAllocateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border/50">
               <h2 className="text-2xl font-bold">Deploy to Algorithm</h2>
               <p className="text-sm text-muted-foreground mt-1">Move cash from your funding wallet into the active AI engine.</p>
@@ -594,8 +591,8 @@ export default function WalletPage() {
 
       {/* Recall from Algo Modal */}
       {showRecallModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border/50">
               <h2 className="text-2xl font-bold">Recall from Algorithm</h2>
               <p className="text-sm text-muted-foreground mt-1">Move cash from the AI engine back to your withdrawable funding wallet.</p>

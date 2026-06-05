@@ -83,7 +83,7 @@ export default function LogsPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-7xl mx-auto pb-10">
+    <div className="space-y-8 max-w-7xl mx-auto pb-10">
       
       {/* Floating Back to Dashboard Navigation Pill */}
       <div className="flex">
@@ -121,7 +121,7 @@ export default function LogsPage() {
           
           <div className="p-6 overflow-y-auto flex-1 space-y-4 bg-background/25">
             {isLoading ? (
-              <div className="h-full flex items-center justify-center text-xs text-muted-foreground animate-pulse">
+              <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
                 Fetching sessions...
               </div>
             ) : sessions.length === 0 ? (
@@ -138,7 +138,7 @@ export default function LogsPage() {
                     </div>
                     <span className={`text-[10px] px-2 py-0.5 rounded font-bold border ${
                       sess.status === "active" 
-                        ? "bg-trading-green/10 text-trading-green border-trading-green/20 animate-pulse" 
+                        ? "bg-trading-green/10 text-trading-green border-trading-green/20" 
                         : "bg-muted text-muted-foreground border-border"
                     }`}>
                       {sess.status.toUpperCase()}
@@ -213,7 +213,7 @@ export default function LogsPage() {
 
           <div className="p-6 flex-1 bg-black/45 rounded-b-xl overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1 scrollbar-thin select-text">
             {isLoading ? (
-              <div className="h-full flex items-center justify-center text-xs text-muted-foreground animate-pulse">
+              <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
                 Initializing execution stream...
               </div>
             ) : filteredTrades.length === 0 ? (

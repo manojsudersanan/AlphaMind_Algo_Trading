@@ -126,7 +126,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto pb-10 relative">
+    <div className="space-y-8 max-w-4xl mx-auto pb-10 relative">
       
       {/* Floating Back to Dashboard Navigation Pill */}
       <div className="flex">
@@ -149,7 +149,6 @@ export default function SettingsPage() {
         
         {/* Module A: Theme Configuration */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/5 blur-xl transition-all" />
           <h3 className="text-lg font-semibold flex items-center gap-2 mb-2">
             <Monitor className="h-5 w-5 text-muted-foreground" /> Interface Theme Settings
           </h3>
@@ -193,7 +192,6 @@ export default function SettingsPage() {
 
         {/* Module B: Token Cost Limiter (AI Compute Budget) */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-gold/5 blur-xl transition-all" />
           
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -220,7 +218,7 @@ export default function SettingsPage() {
           </p>
 
           {config.token_limiter_enabled && (
-            <div className="space-y-6 pt-4 border-t border-border/50 animate-in fade-in duration-300">
+            <div className="space-y-6 pt-4 border-t border-border/50">
               
               {/* Range Slider */}
               <div className="space-y-2">
@@ -274,13 +272,13 @@ export default function SettingsPage() {
           )}
 
           {configSuccess && (
-            <div className="flex items-center gap-2 mt-4 text-xs text-trading-green bg-trading-green/10 border border-trading-green/20 p-3 rounded-lg animate-in fade-in">
+            <div className="flex items-center gap-2 mt-4 text-xs text-trading-green bg-trading-green/10 border border-trading-green/20 p-3 rounded-lg">
               <CheckCircle2 className="h-4 w-4" /> Config saved successfully!
             </div>
           )}
 
           {configError && (
-            <div className="flex items-center gap-2 mt-4 text-xs text-trading-red bg-trading-red/10 border border-trading-red/20 p-3 rounded-lg animate-in fade-in">
+            <div className="flex items-center gap-2 mt-4 text-xs text-trading-red bg-trading-red/10 border border-trading-red/20 p-3 rounded-lg">
               <AlertCircle className="h-4 w-4" /> {configError}
             </div>
           )}
@@ -289,7 +287,6 @@ export default function SettingsPage() {
 
         {/* Module C: Account Credentials Form */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-blue/5 blur-xl transition-all" />
           <h3 className="text-lg font-semibold flex items-center gap-2 mb-2">
             <Shield className="h-5 w-5 text-muted-foreground" /> Account Credentials
           </h3>
@@ -380,13 +377,13 @@ export default function SettingsPage() {
             </div>
 
             {credSuccess && (
-              <div className="flex items-center gap-2 text-xs text-trading-green bg-trading-green/10 border border-trading-green/20 p-3 rounded-lg animate-in fade-in">
+              <div className="flex items-center gap-2 text-xs text-trading-green bg-trading-green/10 border border-trading-green/20 p-3 rounded-lg">
                 <CheckCircle2 className="h-4 w-4" /> Profile credentials updated successfully!
               </div>
             )}
 
             {credError && (
-              <div className="flex items-center gap-2 text-xs text-trading-red bg-trading-red/10 border border-trading-red/20 p-3 rounded-lg animate-in fade-in">
+              <div className="flex items-center gap-2 text-xs text-trading-red bg-trading-red/10 border border-trading-red/20 p-3 rounded-lg">
                 <AlertCircle className="h-4 w-4" /> {credError}
               </div>
             )}

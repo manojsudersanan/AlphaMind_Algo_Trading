@@ -32,11 +32,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center relative overflow-hidden bg-background">
-      {/* Decorative Blur Orbs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-trading-blue/10 blur-[100px] rounded-full pointer-events-none" />
       
-      <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl p-10 shadow-2xl">
+      <div className="z-10 w-full max-w-md space-y-8 rounded-2xl border border-border bg-card p-10 shadow-2xl">
         <div className="text-center">
           <h2 className="mt-2 text-3xl font-bold tracking-tight text-foreground">
             AlphaMind Algo Trading <span className="text-primary opacity-80">Native</span>

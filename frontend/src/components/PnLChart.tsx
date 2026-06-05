@@ -373,7 +373,7 @@ export default function PnLChart({
                 fill="#ffffff"
                 stroke="#60a5fa"
                 strokeWidth="2.5"
-                className="animate-pulse shadow-md"
+                className="shadow-md"
               />
               <circle
                 cx={svgPoints[hoveredIndex].x}
@@ -408,7 +408,7 @@ export default function PnLChart({
         {/* Floating HTML Hover Tooltip */}
         {hoveredIndex !== null && svgPoints[hoveredIndex] && (
           <div
-            className="absolute z-50 p-3 bg-popover border border-border rounded-lg shadow-2xl pointer-events-none text-xs font-mono text-popover-foreground animate-in fade-in zoom-in-95 duration-150 flex flex-col gap-1"
+            className="absolute z-50 p-3 bg-popover border border-border rounded-lg shadow-2xl pointer-events-none text-xs font-mono text-popover-foreground flex flex-col gap-1"
             style={{
               // Position tooltip left or right depending on side of screen to avoid cutoff
               left: `${Math.min(
@@ -464,7 +464,7 @@ export default function PnLChart({
       {isDetailed && (
         <div className="flex justify-between items-center text-[10px] text-muted-foreground border-t border-border/30 pt-3 mt-2 font-mono">
           <span className="flex items-center gap-1">
-            <Activity className="h-3.5 w-3.5 text-trading-green animate-pulse" /> Live Tracking Feed Active
+            <Activity className="h-3.5 w-3.5 text-trading-green" /> Live Tracking Feed Active
           </span>
           <span>
             Start: {points[0]?.time.toLocaleTimeString()} | End:{" "}

@@ -117,7 +117,7 @@ export default function JournalPage() {
 
 
   return (
-    <div className="pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-20">
+    <div className="pt-8 space-y-8 max-w-5xl mx-auto pb-20">
       <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card/40 hover:bg-secondary/35 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-200 mb-6 w-fit shadow-sm">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
       </Link>
@@ -272,7 +272,7 @@ export default function JournalPage() {
 
           {/* TAB 2: TAXATION ESTIMATOR */}
           {activeTab === "taxation" && (
-            <div className="space-y-6 animate-in fade-in duration-200">
+            <div className="space-y-6">
               <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
                   <Calculator className="h-5 w-5 text-trading-gold" />
@@ -366,7 +366,7 @@ export default function JournalPage() {
 
           {/* TAB 3: BALANCE SHEET */}
           {activeTab === "balance_sheet" && (
-            <div className="space-y-6 animate-in fade-in duration-200">
+            <div className="space-y-6">
               <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-6 border-b border-border/50 pb-4">
                   <Receipt className="h-6 w-6 text-primary" />
@@ -452,7 +452,7 @@ export default function JournalPage() {
 
           {/* TAB 4: TRIAL BALANCE */}
           {activeTab === "trial_balance" && (
-            <div className="space-y-6 animate-in fade-in duration-200">
+            <div className="space-y-6">
               <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-border/50 bg-secondary/10">
                   <h3 className="font-semibold text-lg">Double-Entry Trial Balance</h3>

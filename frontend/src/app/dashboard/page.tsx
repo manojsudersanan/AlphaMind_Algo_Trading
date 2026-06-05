@@ -103,7 +103,7 @@ export default function DashboardPage() {
   }, [])
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-7xl mx-auto pb-10">
+    <div className="space-y-8 max-w-7xl mx-auto pb-10">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
@@ -114,12 +114,12 @@ export default function DashboardPage() {
         {tradingConfig?.is_active ? (
           tradingCapital >= 50 ? (
             <div className="flex items-center gap-2 bg-trading-green/10 text-trading-green px-4 py-2 rounded-full border border-trading-green/20">
-              <div className="h-2 w-2 rounded-full bg-trading-green animate-pulse" />
+              <div className="h-2 w-2 rounded-full bg-trading-green" />
               <span className="text-sm font-semibold">Native Engine Online</span>
             </div>
           ) : (
             <Link href="/wallet" className="flex items-center gap-2 bg-trading-gold/10 text-trading-gold px-4 py-2 rounded-full border border-trading-gold/20 hover:bg-trading-gold/20 transition-all">
-              <div className="h-2 w-2 rounded-full bg-trading-gold animate-pulse" />
+              <div className="h-2 w-2 rounded-full bg-trading-gold" />
               <span className="text-xs font-semibold">Engine Active: Allocate Capital &rarr;</span>
             </Link>
           )
@@ -134,7 +134,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {/* Wallet Card */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/10 blur-xl transition-all group-hover:bg-primary/20" />
+
           <div className="flex flex-row items-center justify-between pb-2">
             <h3 className="text-sm font-medium text-muted-foreground">Total Balance</h3>
             <Wallet className="h-4 w-4 text-muted-foreground" />
@@ -151,7 +151,7 @@ export default function DashboardPage() {
 
         {/* AI Return Target */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-blue/10 blur-xl transition-all group-hover:bg-trading-blue/20" />
+
           <div className="flex flex-row items-center justify-between pb-2">
             <h3 className="text-sm font-medium text-muted-foreground">Return Target</h3>
             <TrendingUp className="h-4 w-4 text-trading-blue" />
@@ -166,7 +166,7 @@ export default function DashboardPage() {
 
         {/* Engine Status */}
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group">
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-gold/10 blur-xl transition-all group-hover:bg-trading-gold/20" />
+
           <div className="flex flex-row items-center justify-between pb-2">
             <h3 className="text-sm font-medium text-muted-foreground">Active Model</h3>
             <Cpu className="h-4 w-4 text-trading-gold" />
@@ -186,7 +186,7 @@ export default function DashboardPage() {
           href="/trading" 
           className="rounded-xl border border-border bg-card p-6 shadow-sm relative overflow-hidden group block hover:border-primary/50 transition-all duration-300 col-span-1"
         >
-          <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-trading-green/10 blur-xl transition-all group-hover:bg-trading-green/20" />
+
           <div className="flex flex-col h-full justify-between">
             <div className="flex flex-row items-center justify-between pb-1">
               <h3 className="text-sm font-medium text-muted-foreground">Profit & Loss Curve</h3>
@@ -239,10 +239,8 @@ export default function DashboardPage() {
           <div className="p-6 space-y-4">
              {/* Dynamic Best Profit Prediction Box */}
              <div className="p-5 rounded-lg bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 relative overflow-hidden">
-               <div className="absolute -right-10 -top-10 h-32 w-32 bg-primary/20 blur-3xl rounded-full" />
                <div className="text-xs uppercase font-bold text-primary mb-3 tracking-wider flex items-center gap-2">
                  <span className="relative flex h-2 w-2">
-                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                  </span>
                  Live Profit Scanner
@@ -274,7 +272,7 @@ export default function DashboardPage() {
                    </div>
                  </>
                ) : (
-                 <div className="h-32 flex items-center justify-center text-sm text-muted-foreground animate-pulse">
+                 <div className="h-32 flex items-center justify-center text-sm text-muted-foreground">
                    Analyzing market conditions...
                  </div>
                )}
@@ -303,9 +301,6 @@ export default function DashboardPage() {
                 'bg-trading-gold/10 text-trading-gold border-trading-gold/20'
               }`}>
                 <span className="relative flex h-2 w-2">
-                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                    newsIntel.market_mood === 'BULLISH' ? 'bg-trading-green' : newsIntel.market_mood === 'BEARISH' ? 'bg-trading-red' : 'bg-trading-gold'
-                  }`}></span>
                   <span className={`relative inline-flex rounded-full h-2 w-2 ${
                     newsIntel.market_mood === 'BULLISH' ? 'bg-trading-green' : newsIntel.market_mood === 'BEARISH' ? 'bg-trading-red' : 'bg-trading-gold'
                   }`}></span>
@@ -383,7 +378,7 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="p-10 text-center text-sm text-muted-foreground animate-pulse">
+          <div className="p-10 text-center text-sm text-muted-foreground">
             Fetching market intelligence from online agents...
           </div>
         )}

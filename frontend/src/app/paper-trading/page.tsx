@@ -29,7 +29,7 @@ export default function PaperTradingPage() {
   }, [running, speed]);
 
   return (
-    <div className="pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
+    <div className="pt-8 space-y-8 max-w-5xl mx-auto">
       <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card/40 hover:bg-secondary/35 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-200 mb-6 w-fit shadow-sm">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
       </Link>
@@ -59,7 +59,7 @@ export default function PaperTradingPage() {
               running ? 'bg-trading-gold hover:bg-trading-gold/90 text-primary-foreground' : 'bg-primary hover:bg-primary/90 text-primary-foreground'
             }`}
           >
-            {running ? <><MonitorPlay className="h-4 w-4 animate-pulse"/> Engine Running...</> : <><PlayCircle className="h-4 w-4"/> Start Simulator</>}
+            {running ? <><MonitorPlay className="h-4 w-4"/> Engine Running...</> : <><PlayCircle className="h-4 w-4"/> Start Simulator</>}
           </button>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function PaperTradingPage() {
                  {logs.map((L, i) => (
                     <div key={i} className="text-trading-green border-b border-border/20 pb-1">{L}</div>
                  ))}
-                 {running && <div className="text-trading-gold animate-pulse">Running Monte Carlo simulation vectors...</div>}
+                 {running && <div className="text-trading-gold">Running Monte Carlo simulation vectors...</div>}
                </div>
              )}
            </div>

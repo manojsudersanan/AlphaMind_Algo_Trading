@@ -9,7 +9,7 @@ This document defines the layout grids, structural widgets, input controls, tabl
 ### 1. Header Bar (Universal Top Navigation)
 * **Structure**: Full-width horizontal navigation bar fixed to the top of the viewport.
 * **Left Section (Brand & Logo)**:
-  * Brand Icon: SVG representing a brain circuit with a CSS pulse class.
+  * Brand Icon: SVG representing a brain circuit with static styling.
   * Brand Name: Text label "AlphaMind Native".
 * **Center Section (Main Navigation Links)**:
   * Link 1: "Overview" (Dashboard).
@@ -21,7 +21,7 @@ This document defines the layout grids, structural widgets, input controls, tabl
   * Header Status Badge:
     * **Engine Offline**: Status indicator dot + text "Engine Offline".
     * **Engine Active (No Capital)**: Status indicator dot + text "Allocate Capital" (navigates to Wallet).
-    * **Native Engine Online**: Pulsing status indicator dot + text "Engine Online".
+    * **Native Engine Online**: Static status indicator dot + text "Engine Online".
   * Active Session Status: Displays logged-in user email.
   * Profile Icon: Dropdown button containing "Settings" and "Disconnect".
 
@@ -39,14 +39,13 @@ This document defines the layout grids, structural widgets, input controls, tabl
 * **Visual Representation**:
   * Shape: Sleek horizontal border pill.
   * Content: SVG Chevron-Left Icon followed by the text "Back to Dashboard".
-  * Border: Thin, semi-transparent border contour.
+  * Border: Thin border contour.
   * Placement: Top-left of the main layout area, located below the primary header bar, aligned with the outer container grid margin.
 * **Responsive Control**:
   * Desktop: Full label text ("Back to Dashboard") visible beside the chevron.
   * Mobile/Tablet: Label text hides dynamically; collapses to a small circular button containing only the Chevron-Left icon to minimize screen real-estate overhead.
-* **Interactive & Haptic States**:
-  * Hover: The entire pill translates leftward by 4px (`transform: translate3d(-4px, 0, 0)`) with a smooth CSS transition. The semi-transparent border glows with a mesh backlight.
-  * Press/Active: Button scales down to 96% (`transform: scale3d(0.96, 0.96, 1)`) simulating a physical tactile click.
+* **Interactive States**:
+  * Static: Renders immediately without animations or translations on hover to avoid GPU rendering latency.
 
 ---
 
@@ -85,11 +84,11 @@ This document defines the layout grids, structural widgets, input controls, tabl
   * Header: "AI Alpha Predictions".
   * Content:
     * Sub-card: "Live Profit Scanner" containing:
-      * Scanner Header: "Live Profit Scanner" + pulsing indicator dot.
+      * Scanner Header: "Live Profit Scanner" + active indicator dot.
       * Stock Symbol (highest predicted trend).
       * Current CMP (Market Price).
       * Estimated Return Percentage.
-      * AI Confidence Score: Radial progress ring.
+      * AI Confidence Score: Simple inline progress bar or text indicator showing confidence score.
       * Engine Action Label (e.g., "STRONG BUY").
     * Sub-card: "Hedge Status" containing:
       * Status Header: "Hedge Status".
@@ -133,8 +132,8 @@ This document defines the layout grids, structural widgets, input controls, tabl
   * Header: "Detailed Performance Analytics" + subtitle.
   * Canvas: Large SVG line chart with:
     * Y-axis grid lines with numeric labels.
-    * Chronological trade markers (colored dots on the line).
-    * Hover coordinate tracking: vertical dashed line + glowing crosshair dot.
+    * Chronological trade markers (dots on the line).
+    * Hover coordinate tracking: vertical dashed line + crosshair dot.
     * Hover Tooltip: Floating box showing timestamp, cumulative PnL, trade price, and trade description.
   * Behavior: Keydown event listener closes the modal on 'Escape'.
 
@@ -233,43 +232,27 @@ This document defines the layout grids, structural widgets, input controls, tabl
 
 ---
 
-## ✨ Stitch Prompt: High-Fidelity Zero-Cost Dynamic Aesthetics
+## ⚡ Stitch Prompt: High-Performance Static Layout Specifications
 
-This prompt provides copy-pasteable styling instructions for Stitch AI to implement hardware-accelerated dynamic motion and premium glassmorphism. These effects add rich, visual depth without impacting CPU/GPU trading performance.
+This prompt provides layout instructions for Stitch AI to construct an optimized, high-speed static user interface with zero rendering overhead.
 
 ```markdown
-Role: Lead UI/UX Motion Engineer
-Goal: Implement hardware-accelerated dynamic motion, premium glassmorphism, and micro-interactions.
+Role: Lead UI/UX Performance Architect
+Goal: Implement a clean, flat, high-performance static UI/UX for the AlphaMind Trading Platform.
 
-Constraint: Avoid CPU-intensive Javascript canvas animations, heavy particle libraries, or large asset downloads. All dynamic effects must run entirely on the GPU utilizing CSS transition, translate3d, and hardware-accelerated filters to achieve 120 FPS on both desktop and mobile screens.
+Constraint: Avoid CPU-intensive CSS animations, transitions, keyframes, shadow filters, or heavy backdrop filters. The website must be extremely lightweight, loading instantly and drawing minimum paint operations on both desktop and mobile viewports.
 
-### 1. Hardware-Accelerated Micro-Interactions
-* **GPU-Bound Hover Effects**:
-  * For all cards, buttons, and list rows, use transform: translate3d(x, y, z) and opacity transition properties only. Never animate properties like height, width, margin, or padding.
-  * Apply will-change: transform to cards that scale or shift on hover to pre-allocate GPU memory.
-  * Card hover effect: Scale cards up slightly (scale3d(1.015, 1.015, 1)) and shift upward (translate3d(0, -4px, 0)) using a custom cubic-bezier ease (cubic-bezier(0.25, 0.8, 0.25, 1)).
-* **Button Micro-Clicks**:
-  * On press (:active state), use transform: scale3d(0.96, 0.96, 1) to provide instant tactile feedback.
+### 1. Static Layout & Borders
+* Use standard solid borders (e.g. `border: 1px solid var(--border)`) without shadow offsets or blur effects to outline cards, tables, and buttons.
+* Maintain clean margins, paddings, and alignment grids without any hover shifts, translations, or scale animations.
 
-### 2. Premium Glassmorphism & Depth
-* **Floating Frosting Panels**:
-  * Apply backdrop-filter: blur(12px) and a thin, semi-transparent border on navigation bars, dropdowns, and modals to create modern layered depth.
-  * Ensure card containers use a parent relative position with overflow: hidden to mask internal gradient highlights.
-* **Dynamic Hover Backlight (Mesh Glow)**:
-  * Embed an absolute-positioned pseudo-element (:before or :after) inside active cards. On card hover, transition its opacity from 0% to 100% using a radial-gradient background. This creates a localized, glowing highlight that follows the cursor or centers on hover, giving a premium holographic feel.
+### 2. Static Status Elements
+* Status indicators must render as solid, non-pulsing dots and tags. Avoid the CSS `@keyframes pulse` loops or `animate-pulse` classes.
+* Render the brand SVG logo as a static emblem without heartbeat resizing or circuit dashes.
 
-### 3. CSS Hardware-Accelerated Glow Filters
-* **Glowing Status Indicators**:
-  * Apply a hardware-accelerated drop-shadow filter to active status lights.
-  * Create a breathing pulse animation utilizing CSS keyframes to fluctuate drop-shadow strength and opacity. Run this on a slow 3-second infinite loop.
+### 3. Lightweight Plain Placeholders
+* Instead of loading linear-gradient shimmers or skeletons during loading cycles, render solid color placeholder blocks.
 
-### 4. Keyframe-Animated SVG Logo (Zero Overhead)
-* **Brain-Circuit Logo Animation**:
-  * Target specific paths inside the brain-circuit SVG logo using CSS:
-    * Apply a slow heartbeat scale to the core central brain paths.
-    * Animate the dash-offset of outer circuit paths to create a pulsing data transfer flow effect.
-
-### 5. Fluid Skeleton Shimmers
-* **CSS-Only Loading states**:
-  * Use a linear-gradient background shifting on loop for telemetry placeholders to represent active loading states with zero javascript overhead.
+### 4. Zero Visual Effects Overhead
+* Ensure all elements (modals, dropdowns, inputs) do not use `backdrop-filter: blur()`, `filter: drop-shadow()`, or transition properties.
 ```

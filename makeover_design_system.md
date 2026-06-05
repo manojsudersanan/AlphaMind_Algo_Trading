@@ -1,6 +1,6 @@
 # AlphaMind AI Trading Platform - Structural Layout & Interface Specification
 
-This document defines the layout grids, structural widgets, input controls, tables, and interaction hierarchies for the **AlphaMind Native** trading suite. It is optimized for **Stitch AI** and **Figma** page generation, relying on the design tool's native styles and colors while strictly locking down the interface structure for both desktop and mobile views.
+This document defines the layout grids, structural widgets, input controls, tables, and interaction hierarchies for the **AlphaMind Native** trading suite. It is optimized for **Stitch AI** and **Figma** page generation, relying on the design tool's native styles and colors while strictly locking down the interface structure for both desktop and mobile views, optimized for maximum rendering speed and performance.
 
 ---
 
@@ -9,7 +9,7 @@ This document defines the layout grids, structural widgets, input controls, tabl
 ### 1. Header Bar (Universal Top Navigation)
 * **Structure**: Full-width horizontal navigation bar fixed to the top of the viewport.
 * **Left Section (Brand & Logo)**:
-  * Brand Icon: Raw SVG code representing Lucide's `brain-circuit` icon. It must render with a class for pulse animation (e.g. `animate-pulse-slow`):
+  * Brand Icon: Raw SVG code representing Lucide's `brain-circuit` icon. It must render as a static SVG logo with no animation classes:
     ```xml
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-brain-circuit" aria-hidden="true">
       <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"></path>
@@ -38,7 +38,7 @@ This document defines the layout grids, structural widgets, input controls, tabl
   * Header Status Badge:
     * **Engine Offline**: Status light (indicator dot) + text "Engine Offline".
     * **Engine Active (No Capital)**: Status light + text "Allocate Capital" (clicking routes to Wallet).
-    * **Native Engine Online**: Pulsing status light + text "Engine Online".
+    * **Native Engine Online**: Static green status light + text "Engine Online".
   * Active Session Status: Displays logged-in user email.
   * Profile Icon: Dropdown button containing links to "Settings" (routes to Profile & Settings page) and "Disconnect" (logs out user).
 
@@ -56,14 +56,13 @@ This document defines the layout grids, structural widgets, input controls, tabl
 * **Visual Representation**:
   * Shape: Sleek horizontal border pill.
   * Content: SVG Chevron-Left Icon followed by the text "Back to Dashboard".
-  * Border: Thin, semi-transparent border contour.
+  * Border: Thin border contour.
   * Placement: Top-left of the main layout area, located below the primary header bar, aligned with the outer container grid margin.
 * **Responsive Control**:
   * Desktop: Full label text ("Back to Dashboard") visible beside the chevron.
   * Mobile/Tablet: Label text hides dynamically; collapses to a small circular button containing only the Chevron-Left icon to minimize screen real-estate overhead.
-* **Interactive & Haptic States**:
-  * Hover: The entire pill translates leftward by 4px (`transform: translate3d(-4px, 0, 0)`) with a smooth CSS transition. The semi-transparent border glows with a mesh backlight.
-  * Press/Active: Button scales down to 96% (`transform: scale3d(0.96, 0.96, 1)`) simulating a physical tactile click.
+* **Interactive States**:
+  * Static: Renders immediately without animations or translations on hover to avoid GPU rendering latency.
 
 ---
 
@@ -80,7 +79,7 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * **Card 2 (Target Return)**:
     * Label: "Return Target".
     * Value: Numeric percentage (e.g. `15.0%`).
-    * Description: Active investment timeline strategy label (e.g. "Monthly Horizon").
+    * Description: Active investment strategy label (e.g. "Monthly Horizon").
   * **Card 3 (Active Model)**:
     * Label: "Active Model".
     * Value: Text string (e.g. `ALPHAMIND ONLINE` or `PPO-Agent-v2`).
@@ -103,11 +102,11 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * Header: "AI Alpha Predictions".
   * Content:
     * Sub-card: "Live Profit Scanner" containing:
-      * Scanner Header: "Live Profit Scanner" + pulsing green active indicator dot.
+      * Scanner Header: "Live Profit Scanner" + active indicator dot.
       * Stock Symbol (highest predicted trend symbol).
       * Current CMP (Current Market Price).
       * Estimated Return Percentage (e.g. `+4.8%`).
-      * AI Confidence Score: Radial progress ring enclosing numeric percentage (e.g. `89%`).
+      * AI Confidence Score: Simple inline progress bar or text indicator showing confidence score.
       * Engine Action Label: Text tag displaying current model sentiment (e.g., `STRONG BUY`).
     * Sub-card: "Hedge Status" containing:
       * Status Header: "Hedge Status".
@@ -149,8 +148,8 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * Header: "Detailed Performance Analytics" + subtitle + top-right X close button.
   * Canvas: Large SVG line chart with:
     * Y-axis grid lines with numeric labels.
-    * Chronological trade markers (colored dots on the line).
-    * Hover coordinate tracking: vertical dashed line + glowing crosshair dot.
+    * Chronological trade markers (dots on the line).
+    * Hover coordinate tracking: vertical dashed line + crosshair dot.
     * Hover Tooltip: Floating box showing timestamp, cumulative PnL, trade price, and trade description.
   * Behavior: Keydown event listener closes the modal on 'Escape'.
 
@@ -160,8 +159,8 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * **Card 2 (Active Deployed Capital)**: Locked capital in engine trades.
   * **Card 3 (Withdrawable Cash)**: Liquid funds available for withdrawal/allocation.
 * **Section B: Inflow/Outflow Tracker (2 columns)**:
-  * **Deposits Card**: Cumulative deposit amount + green "Inflow" badge.
-  * **Withdrawals Card**: Cumulative withdrawal amount + red "Outflow" badge.
+  * **Deposits Card**: Cumulative deposit amount + "Inflow" badge.
+  * **Withdrawals Card**: Cumulative withdrawal amount + "Outflow" badge.
 * **Section C: Transaction Ledger Table**:
   * Columns:
     1. **Type**: DEPOSIT / WITHDRAWAL / TRADE_PROFIT / TRADE_LOSS.
@@ -189,7 +188,7 @@ Must remain dense and data-rich, presenting full market telemetry without layout
 * **Tab View C: Balance Sheet**:
   * Left Column (Assets): Personal Wallet Cash, Deployed Engine Capital, Total Assets sum.
   * Right Column (Equity): Capital Account deposits, drawings (withdrawals), retained P&L, Total Equity sum.
-  * Equation Balance Footer: Green status badge verifying `Total Assets = Total Equity`.
+  * Equation Balance Footer: Status badge verifying `Total Assets = Total Equity`.
 * **Tab View D: Trial Balance**:
   * Table Columns: Ledger Account name, Classification, Debit balance, Credit balance.
   * Ledger Rows: Cash Balance, Deployed Capital, Capital Deposits, Capital Withdrawals, Realized Profits, Realized Losses.
@@ -202,7 +201,7 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * Content Box: Scrollable monospaced log output displaying orders, ticks, fills, and slippage notices.
 * **Virtual Ledger Stats (Right Panel, Width 1/3)**:
   * **Simulation settings card**: Displays Virtual Wallet balance, slippage model details, and STT rates.
-  * **Session PnL card**: Displays active session PnL in green/red font.
+  * **Session PnL card**: Displays active session PnL.
 
 ### 6. Profile & Settings Dashboard
 * **Module A: Theme Configuration**:
@@ -212,18 +211,18 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * Selector Tabs:
     1. **Light Mode**: Actionable segment.
     2. **Dark Mode**: Actionable segment.
-    3. **System Settings**: Actionable segment (inherits operating system preferences).
+    3. **System Settings**: Actionable segment.
 * **Module B: Token Cost Limiter (AI Compute Budget)**:
   * Section Header: "AI Compute Token Limiter".
-  * Description: "Limit API consumption rates and query token budgets incurred during real-time asset model scanning."
+  * Description: "Limit API consumption rates and query token budgets."
   * Switch Control: Main On/Off toggle switch slider.
   * **Budget Slider Controls (Active only when Switch is ON)**:
     * Range Slider Input: Minimum value `$0.10`, Maximum value `$50.00`.
-    * Track Indicators: Numerical markers along the slider line at `$5.00`, `$10.00`, `$25.00`, and `$50.00`.
+    * Track Indicators: Numerical markers along the slider line.
   * **Custom Budget Threshold Field**:
     * Input Type: Numeric text input block labeled "Custom Limit ($)".
     * Placeholder: Enter custom limit (e.g., `100.00`).
-    * Active state: Syncs with range slider state (slider updates value when custom input is updated, and vice versa).
+    * Active state: Syncs with range slider state.
 * **Module C: Account Credentials Form**:
   * Section Header: "Account Credentials".
   * Description: "Modify active profile login parameters and security keys."
@@ -234,7 +233,7 @@ Must remain dense and data-rich, presenting full market telemetry without layout
   * Form Input 2 (Current Password Field):
     * Label: "Current Password".
     * Type: Secure password input text block.
-    * Interactive Toggle: Right-aligned inline eye icon button triggering hide/show logic for clear-text password toggle.
+    * Interactive Toggle: Right-aligned inline eye icon button triggering hide/show logic.
   * Form Input 3 (New Password Field):
     * Label: "New Security Password".
     * Type: Secure password input text block.
@@ -243,8 +242,7 @@ Must remain dense and data-rich, presenting full market telemetry without layout
     * Label: "Confirm New Password".
     * Type: Secure password input text block.
     * Interactive Toggle: Right-aligned inline eye icon button triggering hide/show logic.
-  * Form Validation Message: Alert text block appearing if passwords do not match.
-  * Form Action Button: Center/Right-aligned button labeled "Save Configuration".
+  * Form Action Button: "Save Configuration".
 
 ### 7. Login Page
 * **Login Card**: Center-aligned card.
@@ -253,72 +251,27 @@ Must remain dense and data-rich, presenting full market telemetry without layout
 
 ---
 
-## ✨ Stitch Prompt: High-Fidelity Zero-Cost Dynamic Aesthetics
+## ⚡ Stitch Prompt: High-Performance Static Layout Specifications
 
-This prompt provides copy-pasteable styling instructions for Stitch AI to implement hardware-accelerated dynamic motion and premium micro-interactions. These effects add rich, visual depth without impacting CPU/GPU trading performance.
+This prompt provides layout instructions for Stitch AI to construct an optimized, high-speed static user interface with zero rendering overhead.
 
 ```markdown
-Role: Lead UI/UX Motion Engineer
-Goal: Implement hardware-accelerated dynamic motion, premium glassmorphism, and micro-interactions for the AlphaMind Trading Platform.
+Role: Lead UI/UX Performance Architect
+Goal: Implement a clean, flat, high-performance static UI/UX for the AlphaMind Trading Platform.
 
-Constraint: Avoid CPU-intensive Javascript canvas animations, heavy particle libraries, or large asset downloads. All dynamic effects must run entirely on the GPU utilizing CSS transition, translate3d, and hardware-accelerated filters to achieve 120 FPS on both desktop and mobile screens.
+Constraint: Avoid CPU-intensive CSS animations, transitions, keyframes, shadow filters, or heavy backdrop filters. The website must be extremely lightweight, loading instantly and drawing minimum paint operations on both desktop and mobile viewports.
 
-### 1. Hardware-Accelerated Micro-Interactions
-* **GPU-Bound Hover Effects**:
-  * For all cards, buttons, and list rows, use `transform: translate3d(x, y, z)` and `opacity` transition properties only. Never animate properties like `height`, `width`, `margin`, or `padding` as they trigger browser layout recalculation.
-  * Apply `will-change: transform` to cards that scale or shift on hover to pre-allocate GPU memory.
-  * Card hover effect: Scale cards up slightly (`scale3d(1.015, 1.015, 1)`) and shift upward (`translate3d(0, -4px, 0)`) using a custom cubic-bezier ease (`cubic-bezier(0.25, 0.8, 0.25, 1)`).
-* **Button Micro-Clicks**:
-  * On press (`:active` state), use `transform: scale3d(0.96, 0.96, 1)` to provide instant tactile haptic feedback.
+### 1. Static Layout & Borders
+* Use standard solid borders (e.g. `border: 1px solid var(--border)`) without shadow offsets or blur effects to outline cards, tables, and buttons.
+* Maintain clean margins, paddings, and alignment grids without any hover shifts, translations, or scale animations.
 
-### 2. Premium Glassmorphism & Depth
-* **Floating Frosting Panels**:
-  * Apply `backdrop-filter: blur(12px)` and a thin, semi-transparent border (e.g. `border: 1px solid rgba(255, 255, 255, 0.08)`) on navigation bars, dropdowns, and modals to create modern layered depth.
-  * Ensure card containers use a parent relative position with `overflow: hidden` to mask internal gradient highlights.
-* **Dynamic Hover Backlight (Mesh Glow)**:
-  * Embed an absolute-positioned pseudo-element (`:before` or `:after`) inside active cards. On card hover, transition its opacity from 0% to 100% using a radial-gradient background (`radial-gradient(circle at center, rgba(var(--primary-rgb), 0.15) 0%, transparent 70%)`).
-  * This creates a localized, glowing highlight that follows the cursor or centers on hover, giving a premium holographic feel.
+### 2. Static Status Elements
+* Status indicators must render as solid, non-pulsing dots and tags. Avoid the CSS `@keyframes pulse` loops or `animate-pulse` classes.
+* Render the brand SVG logo as a static emblem without heartbeat resizing or circuit dashes.
 
-### 3. CSS Hardware-Accelerated Glow Filters
-* **Glowing Status Indicators**:
-  * Apply a hardware-accelerated drop-shadow filter to green/yellow active lights: `filter: drop-shadow(0 0 6px var(--status-color))`.
-  * Create a breathing pulse animation utilizing CSS keyframes:
-    ```css
-    @keyframes status-pulse {
-      0% { filter: drop-shadow(0 0 2px var(--status-color-alpha)); opacity: 0.7; }
-      50% { filter: drop-shadow(0 0 8px var(--status-color)); opacity: 1; }
-      100% { filter: drop-shadow(0 0 2px var(--status-color-alpha)); opacity: 0.7; }
-    }
-    ```
-  * Run this on a slow 3-second infinite loop.
+### 3. Lightweight Plain Placeholders
+* Instead of loading linear-gradient shimmers or skeletons during loading cycles, render solid color placeholder blocks.
 
-### 4. Keyframe-Animated SVG Logo (Zero Overhead)
-* **Brain-Circuit Logo Animation**:
-  * Target specific paths inside the Lucide `brain-circuit` SVG logo using CSS:
-    * Apply a slow heartbeat scale to the core central brain paths.
-    * Animate the dash-offset of outer circuit paths to create a pulsing "data transfer" flow effect:
-      ```css
-      @keyframes circuit-flow {
-        to { stroke-dashoffset: -20; }
-      }
-      .circuit-path {
-        stroke-dasharray: 5, 5;
-        animation: circuit-flow 1.5s linear infinite;
-      }
-      ```
-
-### 5. Fluid Skeleton Shimmers
-* **CSS-Only Loading states**:
-  * Use a linear-gradient background shifting on loop for telemetry placeholders:
-    ```css
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    .skeleton-loader {
-      background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-bg) 50%, var(--card-bg) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.6s infinite;
-    }
-    ```
+### 4. Zero Visual Effects Overhead
+* Ensure all elements (modals, dropdowns, inputs) do not use `backdrop-filter: blur()`, `filter: drop-shadow()`, or transition properties.
 ```

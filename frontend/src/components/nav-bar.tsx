@@ -14,7 +14,7 @@ export function NavBar() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 flex">
           <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
-            <BrainCircuit className="h-6 w-6 text-primary animate-pulse-slow" />
+            <BrainCircuit className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block">
               AlphaMind Native
             </span>

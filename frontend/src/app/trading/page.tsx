@@ -399,7 +399,7 @@ export default function TradingSetupPage() {
   }
 
   return (
-    <div className="pt-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto pb-10">
+    <div className="pt-8 space-y-8 max-w-5xl mx-auto pb-10">
       <Link href="/dashboard" className="inline-flex items-center gap-2 px-4 py-2 border border-border bg-card/40 hover:bg-secondary/35 rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground transition-all duration-200 mb-6 w-fit shadow-sm">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Dashboard
       </Link>
@@ -478,7 +478,7 @@ export default function TradingSetupPage() {
                 <div className="mt-4 p-4 rounded-lg border border-border bg-secondary/10 hover:bg-secondary/20 transition-all duration-300 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
                   <div className="flex items-center gap-2 mb-2">
-                    <BrainCircuit className="h-4 w-4 text-primary animate-pulse" />
+                    <BrainCircuit className="h-4 w-4 text-primary" />
                     <h4 className="text-sm font-semibold text-foreground">
                       {STRATEGY_DETAILS[hoveredType || tradingType]?.title}
                     </h4>
@@ -660,7 +660,7 @@ export default function TradingSetupPage() {
             onClick={() => setShowDetailedChart(true)}
             className="rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col cursor-pointer hover:border-primary/50 transition-all duration-300 relative group overflow-hidden"
           >
-            <div className="absolute right-0 top-0 h-24 w-24 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/10 blur-xl transition-all group-hover:bg-primary/20" />
+
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Activity className="h-5 w-5 text-primary" />
@@ -742,7 +742,7 @@ export default function TradingSetupPage() {
           {/* Trade Memory Panel */}
           <div className="rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col">
             <div className="flex items-center gap-2 mb-4">
-              <BrainCircuit className="h-5 w-5 text-primary animate-pulse" />
+              <BrainCircuit className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">Memory Learning Ledger</h2>
             </div>
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
@@ -802,7 +802,7 @@ export default function TradingSetupPage() {
                             PnL: {pnlVal >= 0 ? "+" : ""}₹{pnlVal.toFixed(2)}
                           </span>
                         ) : (
-                          <span className="text-trading-green font-bold animate-pulse">Running...</span>
+                          <span className="text-trading-green font-bold">Running...</span>
                         )}
                       </div>
                     </div>
@@ -817,7 +817,7 @@ export default function TradingSetupPage() {
 
       {/* Visual Live Logs Terminal */}
       {(loading || engineActive) && (
-        <div className="mt-8 rounded-xl border border-border bg-[#0d1117] shadow-xl overflow-hidden animate-in slide-in-from-top-4 duration-500">
+        <div className="mt-8 rounded-xl border border-border bg-[#0d1117] shadow-xl overflow-hidden">
           <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/60 text-xs text-muted-foreground font-mono">
             <span className="flex h-3 w-3 rounded-full bg-trading-red"></span>
             <span className="flex h-3 w-3 rounded-full bg-trading-gold"></span>
@@ -847,7 +847,7 @@ export default function TradingSetupPage() {
                         : 'linear-gradient(90deg, #22c55e, #4ade80)'
                   }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+
                 </div>
               </div>
               <div className="flex justify-between text-[10px] text-muted-foreground mt-1 font-mono">
@@ -897,22 +897,22 @@ export default function TradingSetupPage() {
                  ${log?.includes("[TA]") ? "text-trading-gold" : ""}
                  ${log?.includes("[RL]") ? "text-purple-400" : ""}
                  ${log?.includes("[Compute]") ? "text-orange-400" : ""}
-                 ${log?.includes("[Active]") ? "text-trading-green font-bold animate-pulse mt-4" : "text-muted-foreground"}
+                 ${log?.includes("[Active]") ? "text-trading-green font-bold mt-4" : "text-muted-foreground"}
                `}>
                  <span className="opacity-40 mr-3 hidden md:inline-block">[{new Date().toISOString().split("T")[1].slice(0,8)}]</span> 
                  {log}
                </div>
                )
              })}
-            {loading && <div className="text-muted-foreground animate-pulse mt-2">_</div>}
+            {loading && <div className="text-muted-foreground mt-2">_</div>}
           </div>
         </div>
       )}
 
       {/* Detailed PnL Chart Modal */}
       {showDetailedChart && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80">
+          <div className="bg-card border border-border rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col relative">
             <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-secondary/15">
               <div>
                 <h2 className="text-2xl font-bold flex items-center gap-2 pr-8 sm:pr-0">
